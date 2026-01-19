@@ -1,0 +1,7 @@
+{
+  "name": "ChefCatalog - Escaparate Inteligente HORECA",
+  "description": "Una plataforma exclusiva para cocineros profesionales con un catálogo semanal rotativo de 10 productos premium, calculadora de escandallos inteligente y sugerencias culinarias impulsadas por IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
