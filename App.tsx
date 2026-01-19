@@ -97,27 +97,29 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-6 shrink-0">
             <div className="flex items-center">
-              {/* Logo Restaurado con fidelidad absoluta y corrección de solapamiento */}
+              {/* Logo Restaurado con Máxima Fidelidad */}
               <div className="flex flex-col items-start">
-                <svg width="200" height="85" viewBox="0 0 240 110" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-14 sm:h-20 w-auto">
-                  {/* Montaña Negra (Fondo) */}
-                  <path d="M40 70 L90 10 L140 70 H40Z" fill="#1A1A1A" stroke="#000" strokeWidth="1" />
-                  
-                  {/* Montaña Blanca (Nieve superior) - El rombo blanco característico */}
-                  <path d="M72 38 L90 10 L108 38 L90 60 L72 38Z" fill="white" stroke="#000" strokeWidth="0.8" />
-                  
+                <svg width="240" height="110" viewBox="0 0 240 110" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-16 sm:h-24 w-auto">
                   {/* Montaña Roja (Izquierda) */}
-                  <path d="M12 70 L50 20 L68 45" stroke="#E31E24" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M15 75 L52 24 L72 48" stroke="#E31E24" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+                  
+                  {/* Montaña Negra (Central) */}
+                  <path d="M45 75 L95 15 L145 75 H45Z" fill="#1A1A1A" />
+                  
+                  {/* Rombo Blanco (Cima Nieve) */}
+                  <path d="M78 40 L95 15 L112 40 L95 62 L78 40Z" fill="white" stroke="#000" strokeWidth="0.5" />
                   
                   {/* Montaña Azul (Derecha) */}
-                  <path d="M115 70 L160 35 L205 70 H115Z" fill="#00AEEF" stroke="#000" strokeWidth="1.2" />
+                  <path d="M115 75 L165 35 L215 75 H115Z" fill="#00AEEF" stroke="#000" strokeWidth="0.8" />
                   
-                  {/* Textos del Logo - Ajustados para evitar solapamiento */}
-                  <text x="12" y="96" fontFamily="Arial Black, Gadget, sans-serif" fontSize="26" fontWeight="900" fill="#00AEEF" style={{ letterSpacing: '-0.02em' }}>PIRINEOS</text>
-                  <text x="150" y="96" fontFamily="Arial Black, Gadget, sans-serif" fontSize="26" fontWeight="900" fill="#1A1A1A" style={{ letterSpacing: '-0.02em' }}>EXDIM</text>
+                  {/* PIRINEOS (Azul) */}
+                  <text x="12" y="100" fontFamily="Arial Black, sans-serif" fontSize="26" fontWeight="900" fill="#00AEEF" style={{ letterSpacing: '-0.02em' }}>PIRINEOS</text>
                   
-                  {/* Lema - Restaurado con posición exacta */}
-                  <text x="122" y="108" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="bold" fill="#888" style={{ letterSpacing: '0.02em' }}>calidad por naturaleza</text>
+                  {/* EXDIM (Negro) - Separado para evitar solape */}
+                  <text x="156" y="100" fontFamily="Arial Black, sans-serif" fontSize="26" fontWeight="900" fill="#1A1A1A" style={{ letterSpacing: '-0.02em' }}>EXDIM</text>
+                  
+                  {/* calidad por naturaleza (Gris) */}
+                  <text x="155" y="112" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#888" textAnchor="middle">calidad por naturaleza</text>
                 </svg>
               </div>
             </div>
