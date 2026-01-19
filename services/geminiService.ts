@@ -2,28 +2,26 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { RecipeSuggestion, Product } from "../types";
 
-// Función para obtener la instancia de la IA de forma segura
+// Helper para obtener la API KEY independientemente del entorno (Vite o Node)
+const getApiKey = () => {
+  // @ts-ignore
+  return process.env.API_KEY || import.meta.env?.VITE_API_KEY;
+};
+
 const getAiClient = () => {
-  // En entornos de desarrollo local o Vercel, buscamos la variable API_KEY
-  const apiKey = process.env.API_KEY;
-  
+  const apiKey = getApiKey();
   if (!apiKey) {
-    console.warn("API_KEY no encontrada. La IA funcionará en modo demo.");
     return null;
   }
-  
   return new GoogleGenAI({ apiKey });
 };
 
 export const getChefInspiration = async (product: Product): Promise<RecipeSuggestion> => {
   try {
     const ai = getAiClient();
-    if (!ai) throw new Error("No API Key");
+    if (!ai) throw new Error("API Key faltante");
 
-    const prompt = `Actúa como un Chef Ejecutivo Michelin. 
-      Crea una receta técnica para: "${product.name}". 
-      Descripción: ${product.description}. 
-      Responde solo en JSON.`;
+    const prompt = `Como Chef Ejecutivo, crea una receta técnica para: "${product.name}". Responde en JSON.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
@@ -46,13 +44,13 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
 
     return JSON.parse(response.text || '{}');
   } catch (error) {
-    console.error("Error Chef IA:", error);
+    console.error("Error IA:", error);
     return {
-      title: `Sugerencia: ${product.name} al estilo Chef`,
-      ingredients: ["Producto principal", "Aceite de oliva", "Sal en escamas", "Brote tierno"],
-      method: "Tratamiento mínimo del producto para resaltar su origen y frescura.",
-      pairing: "Vino blanco seco o cerveza artesana suave.",
-      chefTips: "Servir a temperatura ambiente para potenciar aromas."
+      title: `${product.name} Sugerencia del Chef`,
+      ingredients: ["Ingrediente principal", "Acompañamiento"],
+      method: "Preparación estándar profesional.",
+      pairing: "Vino recomendado.",
+      chefTips: "Servir recién preparado."
     };
   }
 };
@@ -60,18 +58,17 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
 export const generateProductImage = async (productName: string): Promise<string> => {
   try {
     const ai = getAiClient();
-    if (!ai) throw new Error("No API Key");
+    if (!ai) throw new Error("API Key faltante");
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
-      contents: { parts: [{ text: `Gourmet food photography of ${productName}, luxury plating, top view.` }] },
+      contents: { parts: [{ text: `Gourmet food photo of ${productName}` }] },
       config: { imageConfig: { aspectRatio: "1:1" } },
     });
 
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) return `data:image/png;base64,${part.inlineData.data}`;
-    }
-    throw new Error("No image");
+    const imageData = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+    if (imageData) return `data:image/png;base64,${imageData}`;
+    throw new Error("No image data");
   } catch (error) {
     return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop`;
   }
