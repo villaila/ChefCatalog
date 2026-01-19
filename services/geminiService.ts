@@ -2,14 +2,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { RecipeSuggestion, Product } from "../types";
 
-// Helper para obtener la API KEY independientemente del entorno (Vite o Node)
-const getApiKey = () => {
-  // @ts-ignore
-  return process.env.API_KEY || import.meta.env?.VITE_API_KEY;
-};
-
+// Always use the process.env.API_KEY directly for initialization as per guidelines
 const getAiClient = () => {
-  const apiKey = getApiKey();
+  const apiKey = process.env.API_KEY;
   if (!apiKey) {
     return null;
   }
@@ -23,6 +18,7 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
 
     const prompt = `Como Chef Ejecutivo, crea una receta técnica para: "${product.name}". Responde en JSON.`;
 
+    // Using gemini-3-flash-preview for basic text tasks
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [{ parts: [{ text: prompt }] }],
@@ -42,7 +38,9 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
       }
     });
 
-    return JSON.parse(response.text || '{}');
+    // Use .text property directly as it is not a function
+    const text = response.text || '{}';
+    return JSON.parse(text);
   } catch (error) {
     console.error("Error IA:", error);
     return {
@@ -60,16 +58,30 @@ export const generateProductImage = async (productName: string): Promise<string>
     const ai = getAiClient();
     if (!ai) throw new Error("API Key faltante");
 
+    // Using gemini-2.5-flash-image for general image generation
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
-      contents: { parts: [{ text: `Gourmet food photo of ${productName}` }] },
-      config: { imageConfig: { aspectRatio: "1:1" } },
+      contents: { parts: [{ text: `Gourmet food photo of ${productName}, professional lighting, white background` }] },
+      config: { 
+        imageConfig: { 
+          aspectRatio: "1:1" 
+        } 
+      },
     });
 
-    const imageData = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-    if (imageData) return `data:image/png;base64,${imageData}`;
-    throw new Error("No image data");
+    // Iterate through candidates and parts to find the image data
+    const candidate = response.candidates?.[0];
+    if (candidate?.content?.parts) {
+      for (const part of candidate.content.parts) {
+        if (part.inlineData) {
+          return `data:image/png;base64,${part.inlineData.data}`;
+        }
+      }
+    }
+    
+    throw new Error("No image data found in response");
   } catch (error) {
+    console.error("Error generating image:", error);
     return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop`;
   }
 };
