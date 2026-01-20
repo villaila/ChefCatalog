@@ -69,14 +69,16 @@ const App: React.FC = () => {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const generateOrderMessage = () => {
-    const header = `📋 *PEDIDO CHEFCATALOG*\n📅 Fecha: ${new Date().toLocaleDateString()}\n--------------------------\n\n`;
+    const header = `*PEDIDO CHEFCATALOG*\nFecha: ${new Date().toLocaleDateString()}\n--------------------------\n\n`;
     const items = cart.map(item => {
       const isWeightBased = item.unit.toLowerCase().includes('kg') || item.unit.toLowerCase().includes('l');
       const weight = getAverageWeight(item.specs.format);
+      const itemTotal = calculateItemTotal(item);
       const detail = isWeightBased ? ` (~${(weight * item.quantity).toFixed(1)}${item.unit})` : '';
-      return `✅ *${item.quantity}x* ${item.name}${detail}`;
+      // Se sustituye el emoji ✅ por un guion medio "-"
+      return `- *${item.quantity}x* ${item.name}${detail} - ${itemTotal.toFixed(2)}€`;
     }).join('\n');
-    const footer = `\n\n--------------------------\n💰 *TOTAL ESTIMADO: ${cartTotal.toFixed(2)}€*\n\n_Enviado desde mi catálogo digital_`;
+    const footer = `\n\n--------------------------\n*TOTAL ESTIMADO: ${cartTotal.toFixed(2)}€ (+ IVA)*\n\n_Enviado desde mi catálogo digital_`;
     return header + items + footer;
   };
 
@@ -97,21 +99,14 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-6 shrink-0">
             <div className="flex items-center">
-              {/* Logo EXACTO de la imagen - Sin solapamientos */}
               <div className="flex flex-col items-start">
                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-14 sm:h-20 w-auto">
-                  {/* Montaña Roja Izquierda */}
                   <path d="M10 70 L45 20 L60 40" stroke="#E31E24" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                  {/* Montaña Negra Central */}
                   <path d="M40 70 L90 10 L140 70 H40Z" fill="#1A1A1A" />
-                  {/* Rombo Blanco (Nieve) */}
                   <path d="M72 35 L90 10 L108 35 L90 55 L72 35Z" fill="white" stroke="#000" strokeWidth="0.5" />
-                  {/* Montaña Azul Derecha */}
                   <path d="M110 70 L155 30 L200 70 H110Z" fill="#00AEEF" />
-                  {/* Textos - Espaciado manual corregido para evitar pisado */}
                   <text x="10" y="92" fontFamily="Arial Black, sans-serif" fontSize="26" fontWeight="900" fill="#00AEEF">PIRINEOS</text>
                   <text x="155" y="92" fontFamily="Arial Black, sans-serif" fontSize="26" fontWeight="900" fill="#1A1A1A">EXDIM</text>
-                  {/* Lema */}
                   <text x="122" y="104" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#888" style={{ letterSpacing: '0.02em' }}>calidad por naturaleza</text>
                 </svg>
               </div>
@@ -196,29 +191,48 @@ const App: React.FC = () => {
             </div>
             
             <div className="flex-grow overflow-y-auto p-6 space-y-4">
-              {cart.map(item => (
-                <div key={item.id} className="flex justify-between items-center bg-stone-50 p-4 rounded-xl">
-                  <div className="flex-grow">
-                    <h4 className="font-bold text-xs uppercase">{item.name}</h4>
-                    <p className="text-[10px] text-stone-500 mt-1">{item.price.toFixed(2)}€ / {item.unit}</p>
+              {cart.map(item => {
+                const itemTotal = calculateItemTotal(item);
+                const weightPerUnit = getAverageWeight(item.specs.format);
+                const isWeightBased = item.unit.toLowerCase().includes('kg') || item.unit.toLowerCase().includes('l');
+                
+                return (
+                  <div key={item.id} className="flex justify-between items-center bg-stone-50 p-4 rounded-xl border border-stone-100 shadow-sm">
+                    <div className="flex-grow pr-4">
+                      <h4 className="font-bold text-[11px] uppercase tracking-tight text-stone-900 leading-tight mb-1">{item.name}</h4>
+                      <div className="flex items-center gap-3">
+                        <p className="text-[10px] text-stone-400 font-medium">{item.price.toFixed(2)}€ / {item.unit}</p>
+                        {isWeightBased && (
+                          <p className="text-[10px] text-stone-500 font-bold bg-stone-100 px-1.5 py-0.5 rounded">
+                            ~{(weightPerUnit * item.quantity).toFixed(1)} {item.unit}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-emerald-600 font-black ml-auto">
+                          {itemTotal.toFixed(2)}€
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-400 flex items-center justify-center font-bold">-</button>
+                      <span className="font-black text-xs min-w-[1.2rem] text-center">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-400 flex items-center justify-center font-bold">+</button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-400">-</button>
-                    <span className="font-black text-sm">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-400">+</button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="p-6 bg-stone-50 border-t space-y-4">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Total (aprox)</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Total (aprox)</span>
+                  <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">(+ IVA)</span>
+                </div>
                 <span className="text-2xl font-black text-stone-900">{cartTotal.toFixed(2)}€</span>
               </div>
               <button 
                 onClick={copyToClipboard}
-                className="w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-emerald-100"
+                className="w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-emerald-100 active:scale-[0.98] transition-transform"
               >
                 Copiar para WhatsApp
               </button>
