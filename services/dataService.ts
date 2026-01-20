@@ -38,6 +38,7 @@ const parseCSVLine = (text: string): string[] => {
 
 export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): Promise<Product[]> => {
   try {
+    // Forzamos la descarga de datos nuevos en cada apertura
     const response = await fetch(`${sheetUrl}${sheetUrl.includes('?') ? '&' : '?'}cb=${Date.now()}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
@@ -50,35 +51,30 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
     
     if (rows.length <= 1) return FALLBACK_DATA;
 
-    // Mapeo dinámico de cabeceras
-    const headers = parseCSVLine(rows[0]).map(h => h.toLowerCase().trim());
-    const getCol = (name: string, row: string[]) => {
-      const idx = headers.findIndex(h => h.includes(name.toLowerCase()));
-      return idx !== -1 ? row[idx] : '';
-    };
-
     const dataRows = rows.slice(1);
-    const parsedProducts: Product[] = dataRows.map((rowText, index) => {
-      const col = parseCSVLine(rowText);
+    const parsedProducts: Product[] = dataRows.map((row, index) => {
+      const col = parseCSVLine(row);
       return {
-        id: getCol('id', col) || `item-${index}`,
-        name: getCol('nombre', col) || getCol('name', col) || '',
-        category: getCol('categoría', col) || getCol('category', col) || 'General',
-        price: parseFloat(getCol('precio', col)?.replace(',', '.') || '0') || 0,
-        unit: getCol('unidad', col) || getCol('unit', col) || 'ud',
-        description: getCol('descripción', col) || getCol('description', col) || '',
-        imageUrl: transformDriveUrl(getCol('imagen', col) || getCol('image', col) || ''),
-        origin: getCol('origen', col) || getCol('origin', col) || 'Nacional',
-        benefits: getCol('beneficios', col) ? getCol('beneficios', col).split('|').map(b => b.trim()) : [],
+        id: col[0] || `item-${index}`,
+        name: col[1] || '',
+        category: col[2] || 'General',
+        price: parseFloat(col[3]?.replace(',', '.') || '0') || 0,
+        unit: col[4] || 'ud',
+        description: col[5] || '',
+        imageUrl: transformDriveUrl(col[6] || ''),
+        origin: col[7] || 'Nacional',
+        benefits: col[8] ? col[8].split('|').map(b => b.trim()) : [],
         specs: {
-          format: getCol('formato', col) || 'Estándar',
-          shelfLife: getCol('vida útil', col) || getCol('caducidad', col) || 'Consultar',
-          storage: getCol('conservación', col) || 'Ambiente'
+          format: col[9] || 'Estándar',
+          shelfLife: col[10] || 'Consultar',
+          storage: col[11] || 'Ambiente'
         }
       };
     });
 
-    return parsedProducts.filter(p => p.name.length > 0);
+    const finalProducts = parsedProducts.filter(p => p.name.length > 0);
+    return finalProducts.length > 0 ? finalProducts : FALLBACK_DATA;
+    
   } catch (error) {
     console.error('Error cargando datos:', error);
     return FALLBACK_DATA;
