@@ -64,7 +64,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
       <div className="relative aspect-[4/3] overflow-hidden bg-stone-50">
         {isGenerating ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-stone-50 p-8 text-center">
-            <div className="w-8 h-8 border-2 border-stone-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
+            <div className="w-8 h-8 border-2 border-stone-200 border-t-sky-600 rounded-full animate-spin mb-4"></div>
             <p className="text-[8px] text-stone-400 uppercase font-black tracking-[0.2em] animate-pulse">Generando Visual...</p>
           </div>
         ) : (
@@ -86,11 +86,11 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
             <span className="text-[10px] text-stone-400 font-bold uppercase">/ {product.unit}</span>
           </div>
           {unitPrice && (
-            <div className="bg-emerald-600 px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
+            <div className="bg-sky-600 px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
               <span className="text-sm font-black text-white leading-none">
                 {unitPrice.toFixed(2)}€
               </span>
-              <span className="text-[8px] font-black text-emerald-100 uppercase tracking-tighter">/ ud</span>
+              <span className="text-[8px] font-black text-sky-100 uppercase tracking-tighter">/ ud</span>
             </div>
           )}
         </div>
@@ -107,12 +107,12 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
           <span className="bg-stone-100 text-stone-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
             {product.category}
           </span>
-          <span className="text-[9px] text-emerald-600 font-black uppercase tracking-widest">
+          <span className="text-[9px] text-sky-600 font-black uppercase tracking-widest">
             {product.origin}
           </span>
         </div>
 
-        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-emerald-800 transition-colors">
+        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-sky-800 transition-colors">
           {product.name}
         </h3>
         
@@ -123,7 +123,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
         <div className="mt-auto flex flex-wrap gap-2">
           {product.benefits.slice(0, 2).map((b, i) => (
             <div key={i} className="flex items-center gap-1.5 bg-stone-50 px-3 py-1.5 rounded-xl border border-stone-100">
-              <div className="w-1 h-1 bg-emerald-500 rounded-full"></div>
+              <div className="w-1 h-1 bg-sky-500 rounded-full"></div>
               <span className="text-[9px] font-black text-stone-600 uppercase tracking-tighter">
                 {b}
               </span>

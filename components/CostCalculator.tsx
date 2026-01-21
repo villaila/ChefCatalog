@@ -42,7 +42,7 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
   const marginPercentage = suggestedPVP > 0 ? ((suggestedPVP - totalFoodCost) / suggestedPVP) * 100 : 0;
 
   const getMarginColorClass = (margin: number) => {
-    if (margin >= 70) return 'text-emerald-600';
+    if (margin >= 70) return 'text-sky-600';
     if (margin >= 60) return 'text-amber-600';
     return 'text-red-600';
   };
@@ -102,7 +102,7 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
           type="range" min="0" max="500" step="5"
           value={portionSize} 
           onChange={(e) => setPortionSize(parseInt(e.target.value))}
-          className={`${sliderBaseClass} accent-emerald-600`}
+          className={`${sliderBaseClass} accent-sky-600`}
         />
         
         <div className="mt-5 pt-4 border-t border-stone-50 flex items-center justify-between">
@@ -119,17 +119,17 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
       </div>
 
       {/* 3. COSTES COMPLEMENTARIOS - Compacto */}
-      <div className="bg-emerald-50/40 p-5 rounded-[1.5rem] border border-emerald-100 shadow-sm">
+      <div className="bg-sky-50/40 p-5 rounded-[1.5rem] border border-sky-100 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <label className="block text-[8px] font-black text-emerald-900 uppercase tracking-widest mb-0.5">Cargas Extras</label>
+            <label className="block text-[8px] font-black text-sky-900 uppercase tracking-widest mb-0.5">Cargas Extras</label>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-emerald-800 leading-none tabular-nums">+{extraCost.toFixed(2)}</span>
-              <span className="text-[10px] font-bold text-emerald-600 uppercase">€</span>
+              <span className="text-2xl font-black text-sky-800 leading-none tabular-nums">+{extraCost.toFixed(2)}</span>
+              <span className="text-[10px] font-bold text-sky-600 uppercase">€</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-100/50 flex items-center justify-center border border-emerald-100 shadow-inner">
-            <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-10 h-10 rounded-xl bg-sky-100/50 flex items-center justify-center border border-sky-100 shadow-inner">
+            <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
@@ -138,13 +138,13 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
           type="range" min="0" max="10" step="0.10"
           value={extraCost} 
           onChange={(e) => setExtraCost(parseFloat(e.target.value))}
-          className={`${sliderBaseClass} accent-emerald-500 bg-emerald-100`}
+          className={`${sliderBaseClass} accent-sky-500 bg-sky-100`}
         />
       </div>
 
       {/* 4. RESULTADOS - CON IVA DEL 10% INCLUIDO */}
       <div className="bg-stone-100/80 p-6 rounded-[2rem] space-y-6 relative overflow-hidden border border-stone-200 shadow-sm">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 blur-[60px] rounded-full -mr-16 -mt-16"></div>
         
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-4">
@@ -175,8 +175,8 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
             <p className="text-lg sm:text-xl font-black text-stone-700 tracking-tight tabular-nums leading-none">{suggestedPVP.toFixed(2)}€</p>
           </div>
           <div className="text-right flex flex-col items-end">
-            <p className="text-[7px] sm:text-[8px] text-emerald-700 uppercase font-black mb-2 tracking-widest">PVP (+IVA)</p>
-            <p className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tighter tabular-nums leading-none">{suggestedPVPWithIVA.toFixed(2)}€</p>
+            <p className="text-[7px] sm:text-[8px] text-sky-700 uppercase font-black mb-2 tracking-widest">PVP (+IVA)</p>
+            <p className="text-xl sm:text-2xl font-black text-sky-700 tracking-tighter tabular-nums leading-none">{suggestedPVPWithIVA.toFixed(2)}€</p>
           </div>
         </div>
       </div>

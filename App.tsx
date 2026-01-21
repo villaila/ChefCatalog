@@ -75,7 +75,6 @@ const App: React.FC = () => {
       const weight = getAverageWeight(item.specs.format);
       const itemTotal = calculateItemTotal(item);
       const detail = isWeightBased ? ` (~${(weight * item.quantity).toFixed(1)}${item.unit})` : '';
-      // Se sustituye el emoji ✅ por un guion medio "-"
       return `- *${item.quantity}x* ${item.name}${detail} - ${itemTotal.toFixed(2)}€`;
     }).join('\n');
     const footer = `\n\n--------------------------\n*TOTAL ESTIMADO: ${cartTotal.toFixed(2)}€ (+ IVA)*\n\n_Enviado desde mi catálogo digital_`;
@@ -116,7 +115,7 @@ const App: React.FC = () => {
           <div className="flex-grow flex flex-col justify-center items-end text-right overflow-hidden pr-2">
             <h1 className="text-lg sm:text-xl font-black tracking-tighter text-stone-900 leading-none">ChefCatalog</h1>
             <p className="text-[10px] text-stone-400 font-bold italic mt-1 flex items-center gap-1">
-              Propuesta semanal <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+              Propuesta semanal <span className="w-1.5 h-1.5 bg-sky-500 rounded-full"></span>
             </p>
           </div>
         </div>
@@ -128,7 +127,7 @@ const App: React.FC = () => {
             La Compra <br />
             <span className="text-stone-300 italic font-light">Profesional</span>
           </h2>
-          <div className="w-16 h-1 bg-emerald-600 mb-6"></div>
+          <div className="w-16 h-1 bg-sky-600 mb-6"></div>
           <p className="text-stone-500 text-base md:text-lg max-w-xl font-medium">
             Planifica tus pedidos basándote en pesos medios operativos y precios de mercado de Pirineos Exdim.
           </p>
@@ -170,7 +169,7 @@ const App: React.FC = () => {
             className="w-full bg-stone-900 text-white rounded-2xl p-5 flex items-center justify-between shadow-2xl border border-white/10 active:scale-[0.98] transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="bg-emerald-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">
+              <div className="bg-sky-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">
                 {cartCount}
               </div>
               <span className="text-[11px] font-black uppercase tracking-widest">Ver mi lista</span>
@@ -207,7 +206,7 @@ const App: React.FC = () => {
                             ~{(weightPerUnit * item.quantity).toFixed(1)} {item.unit}
                           </p>
                         )}
-                        <p className="text-[10px] text-emerald-600 font-black ml-auto">
+                        <p className="text-[10px] text-sky-600 font-black ml-auto">
                           {itemTotal.toFixed(2)}€
                         </p>
                       </div>
@@ -232,7 +231,7 @@ const App: React.FC = () => {
               </div>
               <button 
                 onClick={copyToClipboard}
-                className="w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-emerald-100 active:scale-[0.98] transition-transform"
+                className="w-full bg-sky-600 text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-sky-100 active:scale-[0.98] transition-transform"
               >
                 Copiar para WhatsApp
               </button>
