@@ -2,26 +2,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { RecipeSuggestion, Product } from "../types";
 
-// Always use the process.env.API_KEY directly for initialization as per guidelines
-const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
-};
-
 export const getChefInspiration = async (product: Product): Promise<RecipeSuggestion> => {
   try {
-    const ai = getAiClient();
-    if (!ai) throw new Error("API Key faltante");
+    // La llave ahora será inyectada correctamente por Vite
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    const prompt = `Como Chef Ejecutivo de Pirineos Exdim, crea una receta técnica profesional para: "${product.name}". 
+    Enfócate en maximizar el rendimiento del producto. Responde estrictamente en JSON.`;
 
-    const prompt = `Como Chef Ejecutivo, crea una receta técnica para: "${product.name}". Responde en JSON.`;
-
-    // Using gemini-3-flash-preview for basic text tasks
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: [{ parts: [{ text: prompt }] }],
+      model: "gemini-3-pro-preview",
+      contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -38,38 +29,33 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
       }
     });
 
-    // Use .text property directly as it is not a function
-    const text = response.text || '{}';
-    return JSON.parse(text);
+    return JSON.parse(response.text || '{}');
   } catch (error) {
-    console.error("Error IA:", error);
+    console.error("Error Chef IA:", error);
     return {
       title: `${product.name} Sugerencia del Chef`,
       ingredients: ["Ingrediente principal", "Acompañamiento"],
-      method: "Preparación estándar profesional.",
-      pairing: "Vino recomendado.",
-      chefTips: "Servir recién preparado."
+      method: "El servicio Chef IA está temporalmente en mantenimiento o la API Key no es válida.",
+      pairing: "No disponible",
+      chefTips: "Contacta con soporte técnico de Pirineos Exdim."
     };
   }
 };
 
 export const generateProductImage = async (productName: string): Promise<string> => {
   try {
-    const ai = getAiClient();
-    if (!ai) throw new Error("API Key faltante");
-
-    // Using gemini-2.5-flash-image for general image generation
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
-      contents: { parts: [{ text: `Gourmet food photo of ${productName}, professional lighting, white background` }] },
+      contents: { 
+        parts: [{ text: `High-end gourmet food photography of ${productName}, professional culinary lighting, minimalist white background` }] 
+      },
       config: { 
-        imageConfig: { 
-          aspectRatio: "1:1" 
-        } 
+        imageConfig: { aspectRatio: "1:1" } 
       },
     });
 
-    // Iterate through candidates and parts to find the image data
     const candidate = response.candidates?.[0];
     if (candidate?.content?.parts) {
       for (const part of candidate.content.parts) {
@@ -78,10 +64,9 @@ export const generateProductImage = async (productName: string): Promise<string>
         }
       }
     }
-    
-    throw new Error("No image data found in response");
+    throw new Error("No image data found");
   } catch (error) {
-    console.error("Error generating image:", error);
+    console.error("Error generando imagen:", error);
     return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop`;
   }
 };
