@@ -47,6 +47,10 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
 
   if (!product) return null;
 
+  const unitPrice = product.specs.unitsPerFormat > 0 
+    ? product.price / product.specs.unitsPerFormat 
+    : null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="absolute inset-0" onClick={onClose}></div>
@@ -55,7 +59,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
         className="bg-white w-full max-w-5xl h-[92vh] sm:h-auto sm:max-h-[90vh] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col sm:flex-row animate-in slide-in-from-bottom-full duration-500 relative z-10"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Imagen Lateral (Escritorio) o Superior (Móvil) */}
         <div className="w-full sm:w-[40%] bg-stone-100 relative overflow-hidden h-[180px] sm:h-auto shrink-0 border-b sm:border-b-0 sm:border-r border-stone-100">
           <img 
             src={product.imageUrl} 
@@ -72,7 +75,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
           </button>
         </div>
 
-        {/* Contenido Principal */}
         <div className="w-full sm:w-[60%] flex flex-col bg-white overflow-hidden">
           
           <div className="px-6 pt-6 pb-4 sm:px-10 sm:pt-10 sm:pb-6 border-b border-stone-50 shrink-0">
@@ -94,7 +96,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
             </div>
           </div>
 
-          {/* Selector de Pestañas */}
           <div className="flex w-full bg-white border-b border-stone-100 shrink-0">
             {[
               { id: 'info', label: 'FICHA TÉCNICA', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
@@ -118,7 +119,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
             ))}
           </div>
 
-          {/* Contenido Desplazable */}
           <div className="flex-grow overflow-y-auto p-5 sm:p-10 bg-white">
             {activeTab === 'info' && (
               <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -130,13 +130,21 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                 
                 <div>
                   <h4 className="text-[9px] sm:text-[11px] font-black text-stone-800 uppercase tracking-[0.25em] mb-4">ESPECIFICACIONES</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
-                    {Object.entries(product.specs).map(([key, value]) => (
-                      <div key={key} className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-stone-100 shadow-sm">
-                        <p className="text-[8px] sm:text-[9px] text-stone-500 uppercase font-black tracking-widest mb-1 sm:mb-2.5">{key}</p>
-                        <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{value}</p>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-5">
+                    <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-stone-100 shadow-sm">
+                      <p className="text-[8px] sm:text-[9px] text-stone-500 uppercase font-black tracking-widest mb-1 sm:mb-2.5">Formato</p>
+                      <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{product.specs.format}</p>
+                    </div>
+                    {product.specs.unitsPerFormat > 0 && (
+                      <div className="bg-emerald-50/50 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-emerald-100 shadow-sm">
+                        <p className="text-[8px] sm:text-[9px] text-emerald-600 uppercase font-black tracking-widest mb-1 sm:mb-2.5">Unidades / {product.unit}</p>
+                        <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{product.specs.unitsPerFormat} ud</p>
                       </div>
-                    ))}
+                    )}
+                    <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-stone-100 shadow-sm col-span-2 sm:col-span-1">
+                      <p className="text-[8px] sm:text-[9px] text-stone-500 uppercase font-black tracking-widest mb-1 sm:mb-2.5">Conservación</p>
+                      <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{product.specs.storage}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -198,13 +206,20 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
             )}
           </div>
 
-          {/* Footer Fijo con Precio Actualizado */}
           <div className="px-6 py-4 sm:px-10 sm:py-8 border-t border-stone-100 bg-white shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)] flex items-center justify-between sticky bottom-0 z-40 shrink-0">
-            <div>
-              <p className="text-[8px] sm:text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1 sm:mb-1.5">PRECIO MERCADO</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl sm:text-4xl font-black text-stone-900 tracking-tighter tabular-nums">{product.price.toFixed(2)}€</span>
-                <span className="text-[10px] sm:text-[11px] font-bold text-stone-500 uppercase tracking-widest">/{product.unit}</span>
+            <div className="flex flex-col">
+              <p className="text-[8px] sm:text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1 sm:mb-1.5">PRECIO MERCADO / RACIÓN</p>
+              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tighter tabular-nums">{product.price.toFixed(2)}€</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-stone-500 uppercase tracking-widest">/{product.unit}</span>
+                </div>
+                {unitPrice && (
+                  <div className="bg-emerald-600 px-4 py-1.5 rounded-2xl flex items-center gap-2 shadow-xl">
+                    <span className="text-lg sm:text-xl font-black text-white tabular-nums leading-none">{unitPrice.toFixed(2)}€</span>
+                    <span className="text-[10px] font-black text-emerald-100 uppercase tracking-tighter">/ ud</span>
+                  </div>
+                )}
               </div>
             </div>
             <button 

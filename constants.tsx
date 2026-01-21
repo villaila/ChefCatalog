@@ -14,7 +14,8 @@ export const WEEKLY_CATALOG: Product[] = [
     benefits: ['Apertura y servicio directo', 'Larga vida útil', 'Formato hostelería'],
     specs: {
       format: 'Lata 650g',
-      shelfLife: '3 años',
+      // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
+      unitsPerFormat: 1,
       storage: 'Lugar fresco y seco'
     }
   },
@@ -30,7 +31,8 @@ export const WEEKLY_CATALOG: Product[] = [
     benefits: ['Rendimiento 100%', 'Certificado de sostenibilidad', 'Ike Jime original'],
     specs: {
       format: 'Lomo limpio (2-3kg)',
-      shelfLife: '6 días en cámara',
+      // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
+      unitsPerFormat: 1,
       storage: '0°C a 2°C'
     }
   },
@@ -46,7 +48,8 @@ export const WEEKLY_CATALOG: Product[] = [
     benefits: ['Alta demanda en carta', 'Pérdida mínima por cocción', 'Exclusividad estacional'],
     specs: {
       format: 'Piezas de 600g aprox.',
-      shelfLife: '21 días al vacío',
+      // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
+      unitsPerFormat: 1,
       storage: 'Refrigerado'
     }
   },
@@ -62,7 +65,8 @@ export const WEEKLY_CATALOG: Product[] = [
     benefits: ['Elevación de ticket medio', 'Aroma de alta intensidad', 'Icono de temporada'],
     specs: {
       format: 'Piezas +30g',
-      shelfLife: '12 días',
+      // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
+      unitsPerFormat: 1,
       storage: 'Bote hermético / 4°C'
     }
   }

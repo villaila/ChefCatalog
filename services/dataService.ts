@@ -38,7 +38,6 @@ const parseCSVLine = (text: string): string[] => {
 
 export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): Promise<Product[]> => {
   try {
-    // Forzamos la descarga de datos nuevos en cada apertura
     const response = await fetch(`${sheetUrl}${sheetUrl.includes('?') ? '&' : '?'}cb=${Date.now()}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
@@ -66,7 +65,7 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
         benefits: col[8] ? col[8].split('|').map(b => b.trim()) : [],
         specs: {
           format: col[9] || 'Estándar',
-          shelfLife: col[10] || 'Consultar',
+          unitsPerFormat: parseFloat(col[10]?.replace(',', '.') || '0') || 0,
           storage: col[11] || 'Ambiente'
         }
       };

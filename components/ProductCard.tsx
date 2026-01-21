@@ -13,6 +13,10 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
 
+  const unitPrice = product.specs.unitsPerFormat > 0 
+    ? product.price / product.specs.unitsPerFormat 
+    : null;
+
   useEffect(() => {
     let isMounted = true;
     
@@ -22,7 +26,6 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
                            product.imageUrl.length < 10;
 
       if (isPlaceholder && !isGenerating && !errorStatus) {
-        // Añadimos un pequeño retardo aleatorio para que no todas las peticiones salgan al mismo tiempo
         const staggerDelay = Math.random() * 2000;
         await new Promise(resolve => setTimeout(resolve, staggerDelay));
         
@@ -36,7 +39,6 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
           if (isMounted) {
             if (error.message === "QUOTA_EXCEEDED") {
               setErrorStatus("QUOTA");
-              // Fallback a Unsplash con el nombre del producto para no dejarlo vacío
               setDisplayImage(`https://source.unsplash.com/featured/?${encodeURIComponent(product.name + ',food')}`);
             } else {
               setErrorStatus("ERROR");
@@ -75,12 +77,22 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
         )}
         
         {/* Badge de Precio */}
-        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-2 rounded-2xl shadow-xl border border-white">
-          <span className="text-lg font-black text-stone-900 leading-none">
-            {product.price.toFixed(2)}
-            <span className="text-xs ml-0.5">€</span>
-          </span>
-          <span className="text-[10px] text-stone-400 font-bold ml-1 uppercase">/ {product.unit}</span>
+        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border border-white flex flex-col items-end">
+          <div className="flex items-center gap-1 mb-1">
+            <span className="text-lg font-black text-stone-900 leading-none">
+              {product.price.toFixed(2)}
+              <span className="text-xs ml-0.5">€</span>
+            </span>
+            <span className="text-[10px] text-stone-400 font-bold uppercase">/ {product.unit}</span>
+          </div>
+          {unitPrice && (
+            <div className="bg-emerald-600 px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
+              <span className="text-sm font-black text-white leading-none">
+                {unitPrice.toFixed(2)}€
+              </span>
+              <span className="text-[8px] font-black text-emerald-100 uppercase tracking-tighter">/ ud</span>
+            </div>
+          )}
         </div>
 
         {errorStatus === "QUOTA" && (

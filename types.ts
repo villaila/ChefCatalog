@@ -11,7 +11,7 @@ export interface Product {
   benefits: string[];
   specs: {
     format: string;
-    shelfLife: string;
+    unitsPerFormat: number; // Nueva propiedad: sustituye a shelfLife
     storage: string;
   };
 }
