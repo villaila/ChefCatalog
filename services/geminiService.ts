@@ -2,13 +2,29 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { RecipeSuggestion, Product } from "../types";
 
-export const getChefInspiration = async (product: Product): Promise<RecipeSuggestion> => {
+export type CulinaryStyle = 'Tradicional' | 'Clásica' | 'Moderna' | 'Técnica';
+
+export const getChefInspiration = async (product: Product, style: CulinaryStyle = 'Moderna'): Promise<RecipeSuggestion> => {
   try {
-    // La llave ahora será inyectada correctamente por Vite
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
-    const prompt = `Como Chef Ejecutivo de Pirineos Exdim, crea una receta técnica profesional para: "${product.name}". 
-    Enfócate en maximizar el rendimiento del producto. Responde estrictamente en JSON.`;
+    const prompt = `Como Chef Ejecutivo de Pirineos Exdim, crea una propuesta culinaria de estilo "${style}" para el producto: "${product.name}". 
+    
+    Instrucciones de estilo:
+    - Tradicional: Sabores de siempre, guisos, recetas regionales, reconfortante.
+    - Clásica: Técnicas francesas/internacionales académicas, salsas madre, elegancia atemporal.
+    - Moderna: Vanguardia, contrastes de texturas, presentaciones minimalistas, ingredientes globales.
+    - Técnica: Enfoque extremo en procesos químicos/físicos (vacío, fermentos, temperaturas precisas), máxima optimización de merma.
+
+    Responde estrictamente en formato JSON con la siguiente estructura:
+    {
+      "title": "Nombre creativo del plato",
+      "description": "Breve concepto del plato (max 20 palabras)",
+      "ingredients": ["lista de ingredientes con cantidades"],
+      "steps": ["paso 1", "paso 2", ...],
+      "plating": "Descripción del emplatado",
+      "chefTips": "Consejo profesional para rentabilidad o sabor"
+    }`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
@@ -19,12 +35,13 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
           type: Type.OBJECT,
           properties: {
             title: { type: Type.STRING },
+            description: { type: Type.STRING },
             ingredients: { type: Type.ARRAY, items: { type: Type.STRING } },
-            method: { type: Type.STRING },
-            pairing: { type: Type.STRING },
+            steps: { type: Type.ARRAY, items: { type: Type.STRING } },
+            plating: { type: Type.STRING },
             chefTips: { type: Type.STRING }
           },
-          required: ["title", "ingredients", "method", "pairing", "chefTips"]
+          required: ["title", "description", "ingredients", "steps", "plating", "chefTips"]
         }
       }
     });
@@ -33,11 +50,12 @@ export const getChefInspiration = async (product: Product): Promise<RecipeSugges
   } catch (error) {
     console.error("Error Chef IA:", error);
     return {
-      title: `${product.name} Sugerencia del Chef`,
-      ingredients: ["Ingrediente principal", "Acompañamiento"],
-      method: "El servicio Chef IA está temporalmente en mantenimiento o la API Key no es válida.",
-      pairing: "No disponible",
-      chefTips: "Contacta con soporte técnico de Pirineos Exdim."
+      title: `${product.name} Sugerencia`,
+      description: "Error de conexión con el servicio de IA.",
+      ingredients: ["Revisa tu conexión"],
+      steps: ["El servicio Chef IA está temporalmente en mantenimiento."],
+      plating: "No disponible",
+      chefTips: "Contacta con soporte."
     };
   }
 };

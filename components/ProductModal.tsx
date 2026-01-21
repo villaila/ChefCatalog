@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Product, RecipeSuggestion } from '../types';
 import { CostCalculator } from './CostCalculator';
-import { getChefInspiration } from '../services/geminiService';
+import { getChefInspiration, CulinaryStyle } from '../services/geminiService';
 
 interface Props {
   product: Product | null;
@@ -15,6 +15,9 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'info' | 'calc' | 'recipe'>('info');
   const [justAdded, setJustAdded] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<CulinaryStyle>('Moderna');
+
+  const styles: CulinaryStyle[] = ['Tradicional', 'Clásica', 'Moderna', 'Técnica'];
 
   useEffect(() => {
     if (product) {
@@ -28,7 +31,7 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
     if (!product) return;
     setLoading(true);
     try {
-      const res = await getChefInspiration(product);
+      const res = await getChefInspiration(product, selectedStyle);
       setRecipe(res);
     } catch (err) {
       console.error(err);
@@ -174,31 +177,104 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
             {activeTab === 'recipe' && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {!recipe && !loading ? (
-                  <div className="text-center py-10 sm:py-16">
-                    <button 
-                      onClick={handleGetRecipe} 
-                      className="w-full max-w-md bg-stone-100 text-stone-800 px-8 py-5 sm:px-10 sm:py-6 rounded-2xl sm:rounded-3xl font-black text-[11px] sm:text-[12px] uppercase tracking-[0.2em] sm:tracking-[0.25em] shadow-lg border border-stone-200 active:scale-95 transition-all mx-auto flex items-center justify-center gap-3 sm:gap-4 hover:bg-white"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                      Generar Receta Técnica IA
-                    </button>
-                    <p className="mt-4 text-[9px] text-stone-400 font-bold uppercase tracking-widest">Inspiración profesional basada en el mercado</p>
+                  <div className="space-y-8 py-4">
+                    <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100 text-center">
+                      <h4 className="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-4">Selecciona el enfoque culinario</h4>
+                      <div className="flex flex-wrap justify-center gap-2 mb-8">
+                        {styles.map(style => (
+                          <button
+                            key={style}
+                            onClick={() => setSelectedStyle(style)}
+                            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                              selectedStyle === style 
+                                ? 'bg-stone-900 text-white shadow-lg scale-105' 
+                                : 'bg-white text-stone-400 border border-stone-100 hover:border-stone-300'
+                            }`}
+                          >
+                            {style}
+                          </button>
+                        ))}
+                      </div>
+                      <button 
+                        onClick={handleGetRecipe} 
+                        className="w-full max-w-sm bg-emerald-600 text-white px-8 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-emerald-100 active:scale-95 transition-all mx-auto flex items-center justify-center gap-3 hover:bg-emerald-700"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Generar Propuesta {selectedStyle}
+                      </button>
+                    </div>
                   </div>
                 ) : loading ? (
                   <div className="text-center py-16 sm:py-20">
                     <div className="w-12 h-12 sm:w-16 h-16 border-4 border-stone-50 border-t-emerald-600 rounded-full animate-spin mx-auto mb-6 sm:mb-8 shadow-sm"></div>
-                    <p className="text-[10px] sm:text-[11px] font-black text-stone-400 uppercase tracking-[0.3em] animate-pulse">Consultando Red de Chefs...</p>
+                    <p className="text-[10px] sm:text-[11px] font-black text-stone-400 uppercase tracking-[0.3em] animate-pulse">Diseñando Receta {selectedStyle}...</p>
                   </div>
                 ) : recipe && (
-                  <div className="space-y-6 sm:space-y-8 pb-4">
-                    <div className="bg-stone-50 p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] shadow-sm relative overflow-hidden border border-stone-100">
-                      <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 h-48 bg-emerald-500/5 blur-[60px] sm:blur-[100px] rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24"></div>
-                      <h4 className="font-serif text-2xl sm:text-3xl mb-2 sm:mb-3 relative z-10 leading-tight text-stone-900">{recipe.title}</h4>
-                      <p className="text-[9px] sm:text-[11px] text-emerald-600 font-black uppercase tracking-[0.3em] relative z-10">Signature Dish Suggestion</p>
+                  <div className="space-y-8 pb-10">
+                    {/* Header Receta */}
+                    <div className="bg-stone-900 text-white p-8 sm:p-12 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -mr-32 -mt-32"></div>
+                      <span className="inline-block bg-emerald-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] mb-4">
+                        ESTILO {selectedStyle}
+                      </span>
+                      <h4 className="font-serif text-3xl sm:text-4xl mb-3 leading-tight uppercase">{recipe.title}</h4>
+                      <p className="text-emerald-100/60 text-sm italic font-medium">"{recipe.description}"</p>
                     </div>
-                    <div className="p-6 sm:p-8 bg-stone-50/50 rounded-2xl sm:rounded-3xl border border-stone-100">
-                      <h5 className="text-[9px] sm:text-[11px] font-black text-stone-400 uppercase tracking-widest mb-3 sm:mb-4">Proceso de Elaboración</h5>
-                      <p className="text-sm sm:text-base text-stone-800 leading-relaxed font-medium italic">"{recipe.method}"</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+                      {/* Ingredientes */}
+                      <div className="md:col-span-2 space-y-4">
+                        <h5 className="text-[10px] font-black text-stone-900 uppercase tracking-widest border-b pb-2 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                          Ingredientes
+                        </h5>
+                        <ul className="space-y-2">
+                          {recipe.ingredients.map((ing, i) => (
+                            <li key={i} className="text-[11px] sm:text-[12px] text-stone-600 font-semibold flex gap-2">
+                              <span className="text-emerald-500">•</span> {ing}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Elaboración */}
+                      <div className="md:col-span-3 space-y-6">
+                        <h5 className="text-[10px] font-black text-stone-900 uppercase tracking-widest border-b pb-2 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                          Proceso Técnico
+                        </h5>
+                        <div className="space-y-4">
+                          {recipe.steps.map((step, i) => (
+                            <div key={i} className="flex gap-4">
+                              <span className="text-xl font-serif text-stone-200 italic font-bold shrink-0">{i + 1}.</span>
+                              <p className="text-sm sm:text-[15px] text-stone-700 leading-relaxed font-medium pt-1">
+                                {step}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Info */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100">
+                          <h6 className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-3">Emplatado Recomendado</h6>
+                          <p className="text-[12px] text-stone-600 font-medium leading-relaxed italic">{recipe.plating}</p>
+                       </div>
+                       <div className="bg-emerald-50/30 p-6 rounded-3xl border border-emerald-100">
+                          <h6 className="text-[9px] font-black text-emerald-800 uppercase tracking-widest mb-3">Consejo del Chef Pirineos</h6>
+                          <p className="text-[12px] text-emerald-900 font-bold leading-relaxed">{recipe.chefTips}</p>
+                       </div>
+                    </div>
+
+                    <div className="text-center pt-4">
+                      <button 
+                        onClick={() => setRecipe(null)}
+                        className="text-[9px] font-black text-stone-300 uppercase tracking-[0.3em] hover:text-emerald-600 transition-colors"
+                      >
+                        ← Probar otro estilo
+                      </button>
                     </div>
                   </div>
                 )}

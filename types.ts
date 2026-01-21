@@ -11,7 +11,8 @@ export interface Product {
   benefits: string[];
   specs: {
     format: string;
-    unitsPerFormat: number; // Nueva propiedad: sustituye a shelfLife
+    unitsPerFormat: number;
+    // Fix: Added storage property to resolve "Property 'storage' does not exist" and "Object literal may only specify known properties" errors
     storage: string;
   };
 }
@@ -22,9 +23,10 @@ export interface CartItem extends Product {
 
 export interface RecipeSuggestion {
   title: string;
+  description: string;
   ingredients: string[];
-  method: string;
-  pairing: string;
+  steps: string[];
+  plating: string;
   chefTips: string;
 }
 
