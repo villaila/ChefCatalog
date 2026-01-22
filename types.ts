@@ -9,10 +9,10 @@ export interface Product {
   imageUrl: string;
   origin: string;
   benefits: string[];
+  tags: string[]; // Nueva propiedad para clasificación
   specs: {
     format: string;
     unitsPerFormat: number;
-    // Fix: Added storage property to resolve "Property 'storage' does not exist" and "Object literal may only specify known properties" errors
     storage: string;
   };
 }

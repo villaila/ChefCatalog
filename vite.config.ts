@@ -1,5 +1,7 @@
 
 import { defineConfig, loadEnv } from 'vite';
+// Added explicit import of process to provide correct types for Node.js environment
+import process from 'node:process';
 
 export default defineConfig(({ mode }) => {
   // Cargamos las variables de entorno según el modo (development/production)

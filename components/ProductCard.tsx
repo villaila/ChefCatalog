@@ -6,9 +6,10 @@ import { generateProductImage } from '../services/geminiService';
 interface Props {
   product: Product;
   onClick: (p: Product) => void;
+  showTags?: boolean; // Nueva prop para controlar si mostramos etiquetas
 }
 
-export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
+export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = false }) => {
   const [displayImage, setDisplayImage] = useState<string>(product.imageUrl);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
@@ -76,6 +77,25 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
           />
         )}
         
+        {/* Etiquetas de Estado (Badges) con colores de marca */}
+        {showTags && product.tags.length > 0 && (
+          <div className="absolute top-5 left-5 flex flex-col gap-2">
+            {product.tags.map((tag, idx) => (
+              <span 
+                key={idx}
+                className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg backdrop-blur-md border border-white/20 text-white ${
+                  tag === 'NOVEDAD' ? 'bg-[#E31E24]' : 
+                  tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 
+                  tag === 'IDEA SEMANA' ? 'bg-[#1A1A1A]' :
+                  'bg-stone-500'
+                }`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Badge de Precio */}
         <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border border-white flex flex-col items-end">
           <div className="flex items-center gap-1 mb-1">
@@ -86,7 +106,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
             <span className="text-[10px] text-stone-400 font-bold uppercase">/ {product.unit}</span>
           </div>
           {unitPrice && (
-            <div className="bg-sky-600 px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
+            <div className="bg-[#00AEEF] px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
               <span className="text-sm font-black text-white leading-none">
                 {unitPrice.toFixed(2)}€
               </span>
@@ -107,12 +127,12 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
           <span className="bg-stone-100 text-stone-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
             {product.category}
           </span>
-          <span className="text-[9px] text-sky-600 font-black uppercase tracking-widest">
+          <span className="text-[9px] text-[#00AEEF] font-black uppercase tracking-widest">
             {product.origin}
           </span>
         </div>
 
-        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-sky-800 transition-colors">
+        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-[#00AEEF] transition-colors">
           {product.name}
         </h3>
         
@@ -123,7 +143,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick }) => {
         <div className="mt-auto flex flex-wrap gap-2">
           {product.benefits.slice(0, 2).map((b, i) => (
             <div key={i} className="flex items-center gap-1.5 bg-stone-50 px-3 py-1.5 rounded-xl border border-stone-100">
-              <div className="w-1 h-1 bg-sky-500 rounded-full"></div>
+              <div className="w-1 h-1 bg-[#00AEEF] rounded-full"></div>
               <span className="text-[9px] font-black text-stone-600 uppercase tracking-tighter">
                 {b}
               </span>

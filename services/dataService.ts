@@ -20,14 +20,14 @@ const transformDriveUrl = (url: string): string => {
   return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : url;
 };
 
-const parseCSVLine = (text: string): string[] => {
+const parseCSVLine = (text: string, delimiter: string = ','): string[] => {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
     if (char === '"') inQuotes = !inQuotes;
-    else if (char === ',' && !inQuotes) {
+    else if (char === delimiter && !inQuotes) {
       result.push(current.trim());
       current = '';
     } else current += char;
@@ -48,11 +48,27 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
     const csvText = await response.text();
     const rows = csvText.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
     
-    if (rows.length <= 1) return FALLBACK_DATA;
+    if (rows.length <= 1) return FALLBACK_DATA.map(p => ({ ...p, tags: [] }));
+
+    const headerRow = rows[0];
+    const delimiter = headerRow.includes(';') ? ';' : ',';
 
     const dataRows = rows.slice(1);
     const parsedProducts: Product[] = dataRows.map((row, index) => {
-      const col = parseCSVLine(row);
+      const col = parseCSVLine(row, delimiter);
+      
+      // Mapeo de etiquetas (Columna M = índice 12)
+      // Limpiamos espacios, pasamos a mayúsculas y ELIMINAMOS ACENTOS para mayor robustez
+      const rawTags = col[12] || '';
+      const tags = rawTags
+        .split(/[|/,]/)
+        .map(t => t.trim()
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // Eliminar tildes (Recomendación -> RECOMENDACION)
+        )
+        .filter(t => t.length > 0);
+
       return {
         id: col[0] || `item-${index}`,
         name: col[1] || '',
@@ -63,6 +79,7 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
         imageUrl: transformDriveUrl(col[6] || ''),
         origin: col[7] || 'Nacional',
         benefits: col[8] ? col[8].split('|').map(b => b.trim()) : [],
+        tags: tags,
         specs: {
           format: col[9] || 'Estándar',
           unitsPerFormat: parseFloat(col[10]?.replace(',', '.') || '0') || 0,
@@ -72,10 +89,10 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
     });
 
     const finalProducts = parsedProducts.filter(p => p.name.length > 0);
-    return finalProducts.length > 0 ? finalProducts : FALLBACK_DATA;
+    return finalProducts.length > 0 ? finalProducts : FALLBACK_DATA.map(p => ({ ...p, tags: [] }));
     
   } catch (error) {
     console.error('Error cargando datos:', error);
-    return FALLBACK_DATA;
+    return FALLBACK_DATA.map(p => ({ ...p, tags: [] }));
   }
 };

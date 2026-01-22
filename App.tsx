@@ -9,9 +9,13 @@ const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>('Todos');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCartSummary, setShowCartSummary] = useState(false);
+  
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    novedades: false,
+    ideas: false
+  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -27,6 +31,10 @@ const App: React.FC = () => {
     };
     loadData();
   }, []);
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const getAverageWeight = (format: string): number => {
     const match = format.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|l|ml)/i);
@@ -69,7 +77,7 @@ const App: React.FC = () => {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const generateOrderMessage = () => {
-    const header = `*PEDIDO CHEFCATALOG*\nFecha: ${new Date().toLocaleDateString()}\n--------------------------\n\n`;
+    const header = `*PEDIDO CATÁLOGO CHEF*\nFecha: ${new Date().toLocaleDateString()}\n--------------------------\n\n`;
     const items = cart.map(item => {
       const isWeightBased = item.unit.toLowerCase().includes('kg') || item.unit.toLowerCase().includes('l');
       const weight = getAverageWeight(item.specs.format);
@@ -88,90 +96,163 @@ const App: React.FC = () => {
     });
   };
 
-  const categories = ['Todos', ...Array.from(new Set(products.map((p: Product) => p.category)))];
-  const getCount = (cat: string) => cat === 'Todos' ? products.length : products.filter(p => p.category === cat).length;
-  const filteredProducts = categoryFilter === 'Todos' ? products : products.filter(p => p.category === categoryFilter);
+  const novedadProducts = products.filter(p => 
+    p.tags.includes('NOVEDAD') || p.tags.includes('RECOMENDACION')
+  );
+  
+  const ideasProducts = products.filter(p => 
+    p.tags.includes('IDEA SEMANA')
+  );
+
+  const SectionHeader = ({ id, title, count, isOpen, description }: any) => (
+    <div className={`transition-all duration-500 rounded-[2rem] mb-2 ${!isOpen ? 'bg-white shadow-sm border border-stone-100 hover:shadow-md hover:border-sky-100' : 'bg-transparent'}`}>
+      <button 
+        onClick={() => toggleSection(id)}
+        className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 group text-left transition-all"
+      >
+        <div className="flex flex-col gap-0.5 flex-grow">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 transition-colors group-hover:text-sky-700">
+              {title}
+            </h3>
+            <span className="inline-block bg-[#eaff00] text-stone-900 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.05em] rounded-sm transform -rotate-1 shadow-sm">
+              {count} {count === 1 ? 'ARTÍCULO' : 'ARTÍCULOS'}
+            </span>
+          </div>
+          {!isOpen && (
+            <p className="text-stone-400 text-xs font-medium italic mt-1 animate-in fade-in slide-in-from-left-2 line-clamp-1">
+              {description}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
+          {!isOpen ? (
+            <div className="flex items-center gap-2 bg-[#00AEEF] text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-sky-100 group-hover:bg-sky-700 group-hover:scale-105 transition-all w-full sm:w-auto justify-center min-w-[120px]">
+              <span>Abre aquí</span>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 group-hover:bg-stone-200 transition-colors">
+              <svg className="w-5 h-5 rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          )}
+        </div>
+      </button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] pb-32">
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-100 px-4 sm:px-6 py-3 sm:py-4">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-100 px-4 sm:px-6 py-2 sm:py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-            <div className="flex items-center">
-              <div className="flex flex-col items-start">
-                <svg width="240" height="100" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-14 sm:h-20 w-auto">
-                  <path d="M10 70 L45 20 L60 40" stroke="#E31E24" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M40 70 L90 10 L140 70 H40Z" fill="#1A1A1A" />
-                  <path d="M72 35 L90 10 L108 35 L90 55 L72 35Z" fill="white" stroke="#000" strokeWidth="0.5" />
-                  <path d="M110 70 L155 30 L200 70 H110Z" fill="#00AEEF" />
-                  <text x="10" y="92" fontFamily="Arial Black, sans-serif" fontSize="26" fontWeight="900" fill="#00AEEF">PIRINEOS</text>
-                  <text x="155" y="92" fontFamily="Arial Black, sans-serif" fontSize="26" fontWeight="900" fill="#1A1A1A">EXDIM</text>
-                  <text x="122" y="104" fontFamily="Arial, sans-serif" fontSize="10" fontWeight="bold" fill="#888" style={{ letterSpacing: '0.02em' }}>calidad por naturaleza</text>
-                </svg>
-              </div>
-            </div>
+            {/* Logo recreado exactamente en SVG para garantizar visibilidad */}
+            <svg width="220" height="70" viewBox="0 0 540 170" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-14 sm:h-20 w-auto">
+              {/* Montaña Izquierda Roja */}
+              <path d="M150 45L40 100L210 100L150 45Z" fill="#E31E24" />
+              {/* Montaña Central Negra */}
+              <path d="M280 10L120 120L440 120L280 10Z" fill="#1A1A1A" />
+              {/* Nieve Montaña Central */}
+              <path d="M280 10L220 50L340 50L280 10Z" fill="white" />
+              {/* Montaña Derecha Azul */}
+              <path d="M380 40L230 135L530 135L380 40Z" fill="#00AEEF" />
+              
+              {/* Texto Pirineos */}
+              <text x="0" y="152" fontFamily="Arial Black, sans-serif" fontSize="68" fontWeight="900" fill="#00AEEF" letterSpacing="-2">PIRINEOS</text>
+              {/* Texto Exdim */}
+              <text x="325" y="152" fontFamily="Arial Black, sans-serif" fontSize="68" fontWeight="900" fill="#1A1A1A" letterSpacing="-2">EXDIM</text>
+              {/* Eslogan */}
+              <text x="322" y="168" fontFamily="Arial, sans-serif" fontSize="18" fontWeight="bold" fill="#888">calidad por naturaleza</text>
+            </svg>
           </div>
-
-          <div className="flex-grow flex flex-col justify-center items-end text-right overflow-hidden pr-2">
-            <h1 className="text-lg sm:text-xl font-black tracking-tighter text-stone-900 leading-none">ChefCatalog</h1>
-            <p className="text-[10px] text-stone-400 font-bold italic mt-1 flex items-center gap-1">
-              Propuesta semanal <span className="w-1.5 h-1.5 bg-sky-500 rounded-full"></span>
+          <div className="flex-grow flex flex-col justify-center items-end text-right pr-2">
+            <h1 className="text-base sm:text-lg font-black tracking-tighter text-stone-900 leading-none">Catálogo Chef</h1>
+            <p className="text-[9px] text-stone-400 font-bold italic mt-0.5 flex items-center gap-1">
+              Selección Exclusiva <span className="w-1 h-1 bg-sky-500 rounded-full"></span>
             </p>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pt-10">
-        <section className="mb-10 text-center sm:text-left">
-          <h2 className="text-4xl md:text-7xl font-serif text-stone-900 leading-tight tracking-tighter mb-4">
+      <main className="max-w-7xl mx-auto px-6 pt-6 sm:pt-8">
+        <section className="mb-6 sm:mb-8 text-center sm:text-left">
+          <h2 className="text-4xl md:text-5xl font-serif text-stone-900 leading-tight tracking-tighter mb-1">
             La Compra <br />
             <span className="text-stone-300 italic font-light">Profesional</span>
           </h2>
-          <div className="w-16 h-1 bg-sky-600 mb-6"></div>
-          <p className="text-stone-500 text-base md:text-lg max-w-xl font-medium">
+          <div className="w-12 h-1 bg-[#00AEEF] mb-3"></div>
+          <p className="text-stone-500 text-sm md:text-base max-w-xl font-medium leading-relaxed">
             Planifica tus pedidos basándote en pesos medios operativos y precios de mercado de Pirineos Exdim.
           </p>
         </section>
 
-        <div className="flex gap-2 mb-10 overflow-x-auto no-scrollbar pb-2">
-          {categories.map((cat: string) => (
-            <button
-              key={cat}
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 whitespace-nowrap ${
-                categoryFilter === cat 
-                  ? 'bg-stone-900 border-stone-900 text-white shadow-xl' 
-                  : 'bg-white border-stone-100 text-stone-400 hover:border-stone-200'
-              }`}
-            >
-              {cat} ({getCount(cat)})
-            </button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="space-y-4">
+             {Array(2).fill(0).map((_, i) => (
+                <div key={i} className="h-16 bg-stone-50 rounded-2xl animate-pulse"></div>
+             ))}
+          </div>
+        ) : (
+          <div className="space-y-2 sm:space-y-3">
+            <div className="overflow-hidden">
+              <SectionHeader 
+                id="novedades" 
+                title="Novedades y Recomendaciones" 
+                count={novedadProducts.length} 
+                isOpen={openSections.novedades}
+                description="Explora los lanzamientos de temporada y productos con calidad-precio excepcional."
+              />
+              <div className={`transition-all duration-700 ease-in-out ${openSections.novedades ? 'max-h-[10000px] opacity-100 py-4' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                {novedadProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-1">
+                    {novedadProducts.map(p => (
+                      <ProductCard key={p.id} product={p} onClick={setSelectedProduct} showTags={true} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-stone-50 p-10 rounded-[2rem] text-center border border-dashed border-stone-200">
+                    <p className="text-stone-400 text-sm font-medium italic">No hay novedades etiquetadas esta semana.</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-            Array(3).fill(0).map((_, i) => (
-              <div key={i} className="h-80 bg-stone-100 rounded-[2rem] animate-pulse"></div>
-            ))
-          ) : (
-            filteredProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onClick={setSelectedProduct} />
-            ))
-          )}
-        </div>
+            <div className="overflow-hidden">
+              <SectionHeader 
+                id="ideas" 
+                title="Ideas Semanales" 
+                count={ideasProducts.length} 
+                isOpen={openSections.ideas}
+                description="Sugerencias de escandallos y aplicaciones para dinamizar tu carta de fin de semana."
+              />
+              <div className={`transition-all duration-700 ease-in-out ${openSections.ideas ? 'max-h-[10000px] opacity-100 py-4' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                {ideasProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-1">
+                    {ideasProducts.map(p => (
+                      <ProductCard key={p.id} product={p} onClick={setSelectedProduct} showTags={false} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-stone-50 p-10 rounded-[2rem] text-center border border-dashed border-stone-200">
+                    <p className="text-stone-400 text-sm font-medium italic">Próximamente nuevas ideas para tu carta.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {cart.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50">
-          <button 
-            onClick={() => setShowCartSummary(true)}
-            className="w-full bg-stone-900 text-white rounded-2xl p-5 flex items-center justify-between shadow-2xl border border-white/10 active:scale-[0.98] transition-all"
-          >
+          <button onClick={() => setShowCartSummary(true)} className="w-full bg-stone-900 text-white rounded-2xl p-5 flex items-center justify-between shadow-2xl border border-white/10 active:scale-[0.98] transition-all">
             <div className="flex items-center gap-3">
-              <div className="bg-sky-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">
-                {cartCount}
-              </div>
+              <div className="bg-[#00AEEF] text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">{cartCount}</div>
               <span className="text-[11px] font-black uppercase tracking-widest">Ver mi lista</span>
             </div>
             <span className="text-lg font-black">{cartTotal.toFixed(2)}€</span>
@@ -188,63 +269,36 @@ const App: React.FC = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
-            
             <div className="flex-grow overflow-y-auto p-6 space-y-4">
-              {cart.map(item => {
-                const itemTotal = calculateItemTotal(item);
-                const weightPerUnit = getAverageWeight(item.specs.format);
-                const isWeightBased = item.unit.toLowerCase().includes('kg') || item.unit.toLowerCase().includes('l');
-                
-                return (
-                  <div key={item.id} className="flex justify-between items-center bg-stone-50 p-4 rounded-xl border border-stone-100 shadow-sm">
-                    <div className="flex-grow pr-4">
-                      <h4 className="font-bold text-[11px] uppercase tracking-tight text-stone-900 leading-tight mb-1">{item.name}</h4>
-                      <div className="flex items-center gap-3">
-                        <p className="text-[10px] text-stone-400 font-medium">{item.price.toFixed(2)}€ / {item.unit}</p>
-                        {isWeightBased && (
-                          <p className="text-[10px] text-stone-500 font-bold bg-stone-100 px-1.5 py-0.5 rounded">
-                            ~{(weightPerUnit * item.quantity).toFixed(1)} {item.unit}
-                          </p>
-                        )}
-                        <p className="text-[10px] text-sky-600 font-black ml-auto">
-                          {itemTotal.toFixed(2)}€
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-400 flex items-center justify-center font-bold">-</button>
-                      <span className="font-black text-xs min-w-[1.2rem] text-center">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-400 flex items-center justify-center font-bold">+</button>
+              {cart.map(item => (
+                <div key={item.id} className="flex justify-between items-center bg-stone-50 p-4 rounded-xl border border-stone-100">
+                  <div className="flex-grow pr-4">
+                    <h4 className="font-bold text-[11px] uppercase tracking-tight text-stone-900 mb-1">{item.name}</h4>
+                    <div className="flex items-center gap-3">
+                      <p className="text-[10px] text-stone-400">{item.price.toFixed(2)}€ / {item.unit}</p>
+                      <p className="text-[10px] text-sky-600 font-black ml-auto">{calculateItemTotal(item).toFixed(2)}€</p>
                     </div>
                   </div>
-                );
-              })}
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200">-</button>
+                    <span className="font-black text-xs min-w-[1.2rem] text-center">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200">+</button>
+                  </div>
+                </div>
+              ))}
             </div>
-
             <div className="p-6 bg-stone-50 border-t space-y-4">
               <div className="flex justify-between items-end">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Total (aprox)</span>
-                  <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">(+ IVA)</span>
-                </div>
+                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Total (aprox)</span>
                 <span className="text-2xl font-black text-stone-900">{cartTotal.toFixed(2)}€</span>
               </div>
-              <button 
-                onClick={copyToClipboard}
-                className="w-full bg-sky-600 text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-sky-100 active:scale-[0.98] transition-transform"
-              >
-                Copiar para WhatsApp
-              </button>
+              <button onClick={copyToClipboard} className="w-full bg-[#00AEEF] text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em]">Copiar para WhatsApp</button>
             </div>
           </div>
         </div>
       )}
 
-      <ProductModal 
-        product={selectedProduct} 
-        onClose={() => setSelectedProduct(null)} 
-        onAddToCart={addToCart}
-      />
+      <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAddToCart={addToCart} />
     </div>
   );
 };

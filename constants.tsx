@@ -12,6 +12,8 @@ export const WEEKLY_CATALOG: Product[] = [
     imageUrl: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?q=80&w=1000&auto=format&fit=crop',
     origin: 'Cantábrico, España',
     benefits: ['Apertura y servicio directo', 'Larga vida útil', 'Formato hostelería'],
+    // Added missing 'tags' property
+    tags: [],
     specs: {
       format: 'Lata 650g',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
@@ -29,6 +31,8 @@ export const WEEKLY_CATALOG: Product[] = [
     imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1000&auto=format&fit=crop',
     origin: "L'Ametlla de Mar, Tarragona",
     benefits: ['Rendimiento 100%', 'Certificado de sostenibilidad', 'Ike Jime original'],
+    // Added missing 'tags' property
+    tags: [],
     specs: {
       format: 'Lomo limpio (2-3kg)',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
@@ -46,6 +50,8 @@ export const WEEKLY_CATALOG: Product[] = [
     imageUrl: 'https://images.unsplash.com/photo-1602491993980-30221e4237ec?q=80&w=1000&auto=format&fit=crop',
     origin: 'Guijuelo, Salamanca',
     benefits: ['Alta demanda en carta', 'Pérdida mínima por cocción', 'Exclusividad estacional'],
+    // Added missing 'tags' property
+    tags: [],
     specs: {
       format: 'Piezas de 600g aprox.',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
@@ -63,6 +69,8 @@ export const WEEKLY_CATALOG: Product[] = [
     imageUrl: 'https://images.unsplash.com/photo-1590212151175-e58edd96185b?q=80&w=1000&auto=format&fit=crop',
     origin: 'Sarrión, Teruel',
     benefits: ['Elevación de ticket medio', 'Aroma de alta intensidad', 'Icono de temporada'],
+    // Added missing 'tags' property
+    tags: [],
     specs: {
       format: 'Piezas +30g',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
