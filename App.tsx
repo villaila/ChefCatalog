@@ -150,13 +150,13 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-6 shrink-0">
             <svg width="220" height="70" viewBox="0 0 540 170" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-14 sm:h-20 w-auto">
-              <path d="M150 45L40 100L210 100L150 45Z" fill="#E31E24" />
-              <path d="M280 10L120 120L440 120L280 10Z" fill="#1A1A1A" />
+              <path d="M150 45L40 100L210 100L150 45Z" fill="#E31E24" stroke="#1A1A1A" strokeWidth="6" strokeLinejoin="round" />
+              <path d="M280 10L120 120L440 120L280 10Z" fill="#1A1A1A" stroke="#1A1A1A" strokeWidth="6" strokeLinejoin="round" />
               <path d="M280 10L220 50L340 50L280 10Z" fill="white" />
-              <path d="M380 40L230 135L530 135L380 40Z" fill="#00AEEF" />
-              <text x="0" y="152" fontFamily="Arial Black, sans-serif" fontSize="68" fontWeight="900" fill="#00AEEF" letterSpacing="-2">PIRINEOS</text>
-              <text x="325" y="152" fontFamily="Arial Black, sans-serif" fontSize="68" fontWeight="900" fill="#1A1A1A" letterSpacing="-2">EXDIM</text>
-              <text x="322" y="168" fontFamily="Arial, sans-serif" fontSize="18" fontWeight="bold" fill="#888">calidad por naturaleza</text>
+              <path d="M380 40L230 135L530 135L380 40Z" fill="#00AEEF" stroke="#1A1A1A" strokeWidth="6" strokeLinejoin="round" />
+              <text x="0" y="150" fontFamily="Arial Black, sans-serif" fontSize="54" fontWeight="900" fill="#00AEEF" letterSpacing="-1.5">PIRINEOS</text>
+              <text x="265" y="150" fontFamily="Arial Black, sans-serif" fontSize="54" fontWeight="900" fill="#1A1A1A" letterSpacing="-1.5">EXDIM</text>
+              <text x="262" y="165" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="bold" fill="#888">calidad por naturaleza</text>
             </svg>
           </div>
           <div className="flex-grow flex flex-col justify-center items-end text-right pr-2">
