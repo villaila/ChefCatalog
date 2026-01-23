@@ -86,7 +86,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
                 className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg backdrop-blur-md border border-white/20 text-white ${
                   tag === 'NOVEDAD' ? 'bg-[#E31E24]' : 
                   tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 
-                  tag === 'IDEA SEMANA' ? 'bg-[#1A1A1A]' :
+                  tag === 'IDEA SEMANA' ? 'bg-[#52b788]' :
                   'bg-stone-500'
                 }`}
               >
