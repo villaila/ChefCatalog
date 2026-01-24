@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Product, CartItem } from './types';
 import { ProductCard } from './components/ProductCard';
 import { ProductModal } from './components/ProductModal';
@@ -15,6 +15,20 @@ const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartStartTime, setCartStartTime] = useState<string | null>(null);
   const [showCartSummary, setShowCartSummary] = useState(false);
+
+  // Cálculo dinámico del rango de la semana actual (Lunes a Domingo)
+  const weekRange = useMemo(() => {
+    const now = new Date();
+    const currentDay = now.getDay();
+    // Ajuste para que el lunes sea el día 1 y domingo el 7
+    const diffToMonday = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+    
+    const monday = new Date(now.getFullYear(), now.getMonth(), diffToMonday);
+    const sunday = new Date(now.getFullYear(), now.getMonth(), diffToMonday + 6);
+    
+    const fmt = (d: Date) => d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }).toUpperCase().replace('.', '');
+    return `${fmt(monday)} — ${fmt(sunday)}`;
+  }, []);
 
   // Carga inicial desde localStorage
   useEffect(() => {
@@ -118,7 +132,7 @@ const App: React.FC = () => {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const generateOrderMessage = () => {
-    const header = `*PEDIDO CATÁLOGO CHEF*\nFecha: ${new Date().toLocaleDateString()}\nIniciado: ${cartStartTime || 'Reciente'}\n--------------------------\n\n`;
+    const header = `*PEDIDO CATÁLOGO CHEF*\nValidez: ${weekRange}\nFecha: ${new Date().toLocaleDateString()}\nIniciado: ${cartStartTime || 'Reciente'}\n--------------------------\n\n`;
     const items = cart.map(item => {
       const isWeightBased = item.unit.toLowerCase().includes('kg') || item.unit.toLowerCase().includes('l');
       const weight = getAverageWeight(item.specs.format);
@@ -160,10 +174,13 @@ const App: React.FC = () => {
             </svg>
           </div>
           <div className="flex-grow flex flex-col justify-center items-end text-right pr-2">
-            <h1 className="text-base sm:text-lg font-black tracking-tighter text-stone-900 leading-none">Catálogo Chef</h1>
-            <p className="text-[9px] text-stone-400 font-bold italic mt-0.5 flex items-center gap-1">
-              Selección Exclusiva <span className="w-1 h-1 bg-sky-500 rounded-full"></span>
-            </p>
+            <h1 className="text-base sm:text-lg font-black tracking-tighter text-stone-900 leading-none uppercase">Catálogo Chef</h1>
+            <div className="flex items-center gap-2 mt-1.5 justify-end">
+              <div className="bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-100 flex items-center gap-1.5 shadow-sm">
+                <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse"></div>
+                <span className="text-[9px] font-black text-sky-700 uppercase tracking-widest leading-none">Vigente: {weekRange}</span>
+              </div>
+            </div>
           </div>
         </div>
       </header>
