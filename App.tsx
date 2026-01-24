@@ -69,12 +69,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
     
-    // Si el carrito se vacía, limpiamos el timestamp
     if (cart.length === 0) {
       setCartStartTime(null);
       localStorage.removeItem(CART_TIME_KEY);
     } else if (!cartStartTime) {
-      // Si es el primer producto, guardamos el momento actual
       const now = new Date().toLocaleString('es-ES', { 
         day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
       });
@@ -148,8 +146,6 @@ const App: React.FC = () => {
     const text = generateOrderMessage();
     navigator.clipboard.writeText(text).then(() => {
       alert("✅ ¡Copiado! Pégalo ahora en el chat de tu comercial.");
-      
-      // Preguntar por el borrado tras copiar
       setTimeout(() => {
         if (window.confirm("¿Deseas vaciar el carrito ahora que has copiado el pedido?")) {
           clearCart();
@@ -160,39 +156,45 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] pb-32">
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-100 px-4 sm:px-6 py-2 sm:py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-            <svg width="220" height="70" viewBox="0 0 540 170" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-14 sm:h-20 w-auto">
+      <header className="sticky top-0 z-40 bg-white/98 backdrop-blur-xl border-b border-stone-100 px-4 sm:px-8 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <svg width="220" height="70" viewBox="0 0 540 170" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 sm:h-16 w-auto">
               <path d="M150 45L40 100L210 100L150 45Z" fill="#E31E24" stroke="#1A1A1A" strokeWidth="6" strokeLinejoin="round" />
               <path d="M280 10L120 120L440 120L280 10Z" fill="#1A1A1A" stroke="#1A1A1A" strokeWidth="6" strokeLinejoin="round" />
               <path d="M280 10L220 50L340 50L280 10Z" fill="white" />
               <path d="M380 40L230 135L530 135L380 40Z" fill="#00AEEF" stroke="#1A1A1A" strokeWidth="6" strokeLinejoin="round" />
               <text x="0" y="150" fontFamily="Arial Black, sans-serif" fontSize="54" fontWeight="900" fill="#00AEEF" letterSpacing="-1.5">PIRINEOS</text>
               <text x="265" y="150" fontFamily="Arial Black, sans-serif" fontSize="54" fontWeight="900" fill="#1A1A1A" letterSpacing="-1.5">EXDIM</text>
-              <text x="262" y="165" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="bold" fill="#888">calidad por naturaleza</text>
             </svg>
           </div>
-          <div className="flex-grow flex flex-col justify-center items-end text-right pr-2">
-            <h1 className="text-base sm:text-lg font-black tracking-tighter text-stone-900 leading-none uppercase">Catálogo Chef</h1>
-            <div className="flex items-center gap-2 mt-1.5 justify-end">
-              <div className="bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-100 flex items-center gap-1.5 shadow-sm">
-                <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-pulse"></div>
-                <span className="text-[9px] font-black text-sky-700 uppercase tracking-widest leading-none">Vigente: {weekRange}</span>
-              </div>
+
+          <div className="flex flex-col items-end text-right">
+            <span className="text-[11px] sm:text-[13px] font-black text-stone-900 tracking-[0.05em] leading-none mb-1">
+              Catálogo Chef
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-widest whitespace-nowrap">
+                VIGENCIA:
+              </span>
+              <span className="text-[10px] sm:text-[12px] font-black text-sky-600 tabular-nums">
+                {weekRange}
+              </span>
             </div>
           </div>
+
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 pt-6 sm:pt-8">
-        <section className="mb-8 sm:mb-12 text-center sm:text-left">
-          <h2 className="text-4xl md:text-5xl font-serif text-stone-900 leading-tight tracking-tighter mb-1">
+      <main className="max-w-7xl mx-auto px-6 pt-8 sm:pt-12">
+        <section className="mb-10 sm:mb-16 text-center sm:text-left relative">
+          <div className="absolute -left-6 top-0 w-1 h-20 bg-[#00AEEF] hidden sm:block"></div>
+          <h2 className="text-4xl sm:text-6xl font-serif text-stone-900 leading-none tracking-tighter mb-4">
             La Compra <br />
             <span className="text-stone-300 italic font-light">Profesional</span>
           </h2>
-          <div className="w-12 h-1 bg-[#00AEEF] mb-3"></div>
-          <p className="text-stone-500 text-sm md:text-base max-w-xl font-medium leading-relaxed">
+          <p className="text-stone-500 text-sm sm:text-lg max-w-xl font-medium leading-relaxed italic">
             Directo desde Pirineos Exdim. Precios actualizados y escandallos para tu cocina.
           </p>
         </section>
@@ -200,11 +202,11 @@ const App: React.FC = () => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
              {Array(6).fill(0).map((_, i) => (
-                <div key={i} className="aspect-[4/3] bg-stone-100 rounded-[2rem] animate-pulse"></div>
+                <div key={i} className="aspect-[4/3] bg-stone-100 rounded-[2.5rem] animate-pulse"></div>
              ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
             {products.map(p => (
               <ProductCard 
                 key={p.id} 
@@ -218,64 +220,63 @@ const App: React.FC = () => {
       </main>
 
       {cart.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50">
-          <button onClick={() => setShowCartSummary(true)} className="w-full bg-stone-900 text-white rounded-2xl p-5 flex items-center justify-between shadow-2xl border border-white/10 active:scale-[0.98] transition-all">
-            <div className="flex items-center gap-3">
-              <div className="bg-[#00AEEF] text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black">{cartCount}</div>
-              <span className="text-[11px] font-black uppercase tracking-widest">Ver mi lista</span>
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
+          <button onClick={() => setShowCartSummary(true)} className="w-full bg-stone-900 text-white rounded-3xl p-6 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 active:scale-95 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#00AEEF] text-white w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black shadow-lg shadow-sky-500/20">{cartCount}</div>
+              <span className="text-[12px] font-black uppercase tracking-[0.25em]">Mi Pedido</span>
             </div>
-            <span className="text-lg font-black">{cartTotal.toFixed(2)}€</span>
+            <span className="text-xl font-black tabular-nums">{cartTotal.toFixed(2)}€</span>
           </button>
         </div>
       )}
 
       {showCartSummary && (
-        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-stone-900/80 backdrop-blur-sm p-0 sm:p-4">
-          <div className="bg-white w-full max-w-md rounded-t-[2rem] sm:rounded-[2rem] overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b flex justify-between items-center">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-stone-900/40 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0" onClick={() => setShowCartSummary(false)}></div>
+          <div className="bg-white w-full max-w-md rounded-t-[3rem] sm:rounded-[3rem] overflow-hidden flex flex-col max-h-[92vh] shadow-2xl relative z-10">
+            <div className="p-8 border-b border-stone-100 flex justify-between items-center">
               <div className="flex flex-col">
-                <h3 className="font-serif text-xl">Confirmar Pedido</h3>
-                {cartStartTime && (
-                  <p className="text-[9px] text-stone-400 font-bold uppercase tracking-widest mt-0.5">
-                    Iniciado el {cartStartTime}
-                  </p>
-                )}
+                <h3 className="font-serif text-2xl text-stone-900">Confirmar Pedido</h3>
+                <p className="text-[10px] text-sky-600 font-black uppercase tracking-[0.2em] mt-1">
+                  VIGENCIA: {weekRange}
+                </p>
               </div>
-              <button onClick={() => setShowCartSummary(false)} className="p-2 text-stone-400">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              <button onClick={() => setShowCartSummary(false)} className="p-3 bg-stone-50 rounded-full text-stone-400 hover:text-stone-900 transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
-            <div className="flex-grow overflow-y-auto p-6 space-y-4">
+            <div className="flex-grow overflow-y-auto p-8 space-y-6 no-scrollbar">
               {cart.map(item => (
-                <div key={item.id} className="flex justify-between items-center bg-stone-50 p-4 rounded-xl border border-stone-100">
+                <div key={item.id} className="flex justify-between items-center bg-stone-50/50 p-5 rounded-2xl border border-stone-100 hover:bg-white transition-colors">
                   <div className="flex-grow pr-4">
-                    <h4 className="font-bold text-[11px] uppercase tracking-tight text-stone-900 mb-1">{item.name}</h4>
+                    <h4 className="font-black text-[12px] uppercase tracking-tight text-stone-900 mb-1">{item.name}</h4>
                     <div className="flex items-center gap-3">
-                      <p className="text-[10px] text-stone-400">{item.price.toFixed(2)}€ / {item.unit}</p>
-                      <p className="text-[10px] text-sky-600 font-black ml-auto">{calculateItemTotal(item).toFixed(2)}€</p>
+                      <p className="text-[11px] text-stone-400 font-medium">{item.price.toFixed(2)}€ / {item.unit}</p>
+                      <p className="text-[12px] text-sky-600 font-black ml-auto tabular-nums">{calculateItemTotal(item).toFixed(2)}€</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200">-</button>
-                    <span className="font-black text-xs min-w-[1.2rem] text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200">+</button>
+                  <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-stone-100 shadow-sm">
+                    <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center font-black text-stone-400 hover:text-red-500 transition-colors">-</button>
+                    <span className="font-black text-sm min-w-[1.5rem] text-center">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center font-black text-stone-400 hover:text-sky-600 transition-colors">+</button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-6 bg-stone-50 border-t space-y-4">
+            <div className="p-8 bg-stone-50 border-t border-stone-100 space-y-6">
               <div className="flex justify-between items-end">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Total (aprox)</span>
-                  <span className="text-[9px] text-stone-400 font-medium italic">Sujeto a pesos finales</span>
+                  <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Total Estimado</span>
+                  <span className="text-[9px] text-stone-400 font-bold italic">Sujeto a pesaje final</span>
                 </div>
-                <span className="text-2xl font-black text-stone-900">{cartTotal.toFixed(2)}€</span>
+                <span className="text-3xl font-black text-stone-900 tracking-tighter">{cartTotal.toFixed(2)}€</span>
               </div>
-              <button onClick={copyToClipboard} className="w-full bg-[#00AEEF] text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-sky-100 active:scale-95 transition-all">
-                Copiar para WhatsApp
+              <button onClick={copyToClipboard} className="w-full bg-[#00AEEF] text-white py-5 rounded-2xl font-black text-[12px] uppercase tracking-[0.25em] shadow-xl shadow-sky-200 active:scale-95 transition-all">
+                Copiar para ENVIAR
               </button>
-              <button onClick={() => window.confirm("¿Vaciar toda la lista actual?") && clearCart()} className="w-full text-stone-400 py-2 text-[9px] font-black uppercase tracking-widest hover:text-red-500 transition-colors">
-                Borrar carrito
+              <button onClick={() => window.confirm("¿Vaciar toda la lista actual?") && clearCart()} className="w-full text-stone-300 py-2 text-[10px] font-black uppercase tracking-widest hover:text-red-500 transition-colors">
+                Limpiar Selección
               </button>
             </div>
           </div>
