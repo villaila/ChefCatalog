@@ -57,15 +57,13 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
     const parsedProducts: Product[] = dataRows.map((row, index) => {
       const col = parseCSVLine(row, delimiter);
       
-      // Mapeo de etiquetas (Columna M = índice 12)
-      // Limpiamos espacios, pasamos a mayúsculas y ELIMINAMOS ACENTOS para mayor robustez
       const rawTags = col[12] || '';
       const tags = rawTags
         .split(/[|/,]/)
         .map(t => t.trim()
           .toUpperCase()
           .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "") // Eliminar tildes (Recomendación -> RECOMENDACION)
+          .replace(/[\u0300-\u036f]/g, "") 
         )
         .filter(t => t.length > 0);
 
@@ -77,7 +75,7 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
         unit: col[4] || 'ud',
         description: col[5] || '',
         imageUrl: transformDriveUrl(col[6] || ''),
-        origin: col[7] || 'Nacional',
+        origin: col[7] || '', // Se elimina el default 'Nacional'
         benefits: col[8] ? col[8].split('|').map(b => b.trim()) : [],
         tags: tags,
         specs: {

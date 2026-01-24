@@ -6,7 +6,7 @@ import { generateProductImage } from '../services/geminiService';
 interface Props {
   product: Product;
   onClick: (p: Product) => void;
-  showTags?: boolean; // Nueva prop para controlar si mostramos etiquetas
+  showTags?: boolean; 
 }
 
 export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = false }) => {
@@ -77,7 +77,6 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
           />
         )}
         
-        {/* Etiquetas de Estado (Badges) con colores de marca */}
         {showTags && product.tags.length > 0 && (
           <div className="absolute top-5 left-5 flex flex-col gap-2">
             {product.tags.map((tag, idx) => (
@@ -96,7 +95,6 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
           </div>
         )}
 
-        {/* Badge de Precio */}
         <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border border-white flex flex-col items-end">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-lg font-black text-stone-900 leading-none">
@@ -127,9 +125,11 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
           <span className="bg-stone-100 text-stone-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
             {product.category}
           </span>
-          <span className="text-[9px] text-[#00AEEF] font-black uppercase tracking-widest">
-            {product.origin}
-          </span>
+          {product.origin && (
+            <span className="text-[9px] text-[#00AEEF] font-black uppercase tracking-widest">
+              {product.origin}
+            </span>
+          )}
         </div>
 
         <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-[#00AEEF] transition-colors">

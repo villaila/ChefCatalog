@@ -34,7 +34,8 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
 
   useEffect(() => {
     if (isByUnit) {
-      setPortionSize(Math.round(fixedFormatWeight * 1000));
+      // Clamping to 1000 as per user request for portion size limit
+      setPortionSize(Math.min(1000, Math.round(fixedFormatWeight * 1000)));
     }
   }, [product, isByUnit, fixedFormatWeight]);
 
@@ -103,13 +104,13 @@ PVP SUGERIDO (c/ IVA): ${suggestedPVPWithIVA.toFixed(2)}€`;
             <button onClick={() => setPortionSize(prev => Math.max(0, prev - 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M20 12H4"/></svg>
             </button>
-            <button onClick={() => setPortionSize(prev => Math.min(2000, prev + 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
+            <button onClick={() => setPortionSize(prev => Math.min(1000, prev + 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
             </button>
           </div>
         </div>
         <input 
-          type="range" min="0" max={Math.max(1000, Math.round(fixedFormatWeight * 1000 * 1.5))} step="5"
+          type="range" min="0" max="1000" step="5"
           value={portionSize} 
           onChange={(e) => setPortionSize(parseInt(e.target.value))}
           className={`${sliderBaseClass} accent-sky-600`}

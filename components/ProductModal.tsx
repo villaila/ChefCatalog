@@ -89,7 +89,11 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                 <h2 className="text-2xl sm:text-3xl font-serif text-stone-900 leading-none uppercase tracking-tight truncate whitespace-nowrap" title={product.name}>
                   {product.name}
                 </h2>
-                <p className="text-stone-500 text-[10px] font-black uppercase tracking-widest italic mt-1.5">{product.origin}</p>
+                {product.origin && (
+                  <p className="text-stone-500 text-[10px] font-black uppercase tracking-widest italic mt-1.5">
+                    {product.origin}
+                  </p>
+                )}
               </div>
               <button onClick={onClose} className="hidden sm:block text-stone-300 hover:text-stone-900 transition-colors shrink-0">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +215,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                   </div>
                 ) : recipe && (
                   <div className="space-y-8 pb-10">
-                    {/* Header Receta Suavizado */}
                     <div className="bg-stone-50 text-stone-900 p-8 sm:p-12 rounded-[2.5rem] shadow-sm border border-stone-100 relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-64 h-64 bg-sky-600/5 blur-[100px] rounded-full -mr-32 -mt-32"></div>
                       <span className="inline-block bg-sky-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] mb-4 text-white">
@@ -222,7 +225,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-                      {/* Ingredientes */}
                       <div className="md:col-span-2 space-y-4">
                         <h5 className="text-[10px] font-black text-stone-900 uppercase tracking-widest border-b pb-2 flex items-center gap-2">
                           <span className="w-1.5 h-1.5 bg-sky-500 rounded-full"></span>
@@ -237,7 +239,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                         </ul>
                       </div>
 
-                      {/* Elaboración */}
                       <div className="md:col-span-3 space-y-6">
                         <h5 className="text-[10px] font-black text-stone-900 uppercase tracking-widest border-b pb-2 flex items-center gap-2">
                           <span className="w-1.5 h-1.5 bg-sky-500 rounded-full"></span>
@@ -256,7 +257,6 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                       </div>
                     </div>
 
-                    {/* Footer Info */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100">
                           <h6 className="text-[9px] font-black text-sky-700 uppercase tracking-widest mb-3">Emplatado Recomendado</h6>
