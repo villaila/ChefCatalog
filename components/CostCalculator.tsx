@@ -17,19 +17,28 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
   const isByUnit = product.unit.toLowerCase().includes('ud') || 
                    product.unit.toLowerCase().includes('piez') || 
                    product.unit.toLowerCase().includes('unid') ||
-                   product.unit.toLowerCase().includes('lata');
+                   product.unit.toLowerCase().includes('lata') ||
+                   product.unit.toLowerCase().includes('bote') ||
+                   product.unit.toLowerCase().includes('frasco') ||
+                   product.unit.toLowerCase().includes('envase') ||
+                   product.unit.toLowerCase().includes('caja') ||
+                   product.unit.toLowerCase().includes('pack');
   
-  const [formatWeight, setFormatWeight] = useState<number>(extractFormatWeight(product.specs.format));
+  const fixedFormatWeight = extractFormatWeight(product.specs.format);
+  
   const [portionSize, setPortionSize] = useState<number>(150); 
   const [wastePercentage, setWastePercentage] = useState<number>(0); 
   const [markup, setMarkup] = useState<number>(3.5);
   const [extraCost, setExtraCost] = useState<number>(0);
+  const [copyFeedback, setCopyFeedback] = useState(false);
 
   useEffect(() => {
-    setFormatWeight(extractFormatWeight(product.specs.format));
-  }, [product]);
+    if (isByUnit) {
+      setPortionSize(Math.round(fixedFormatWeight * 1000));
+    }
+  }, [product, isByUnit, fixedFormatWeight]);
 
-  const pricePerKg = isByUnit ? (product.price / (formatWeight || 1)) : product.price;
+  const pricePerKg = isByUnit ? (product.price / (fixedFormatWeight || 1)) : product.price;
   const costPerGramRaw = pricePerKg / 1000;
   const yieldFactor = 1 - (wastePercentage / 100);
   const costPerGramNet = costPerGramRaw / (yieldFactor || 1);
@@ -39,6 +48,22 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
   const suggestedPVP = totalFoodCost * markup;
   const suggestedPVPWithIVA = suggestedPVP * 1.10; 
   const marginPercentage = suggestedPVP > 0 ? ((suggestedPVP - totalFoodCost) / suggestedPVP) * 100 : 0;
+
+  const copySummary = () => {
+    const summary = `ESCANDALLO: ${product.name}
+---------------------------
+Ración: ${portionSize}g
+Merma: ${wastePercentage}%
+Cargas extra: ${extraCost.toFixed(2)}€
+---------------------------
+COSTE PLATO: ${totalFoodCost.toFixed(2)}€
+MARGEN: ${marginPercentage.toFixed(0)}%
+PVP SUGERIDO (c/ IVA): ${suggestedPVPWithIVA.toFixed(2)}€`;
+
+    navigator.clipboard.writeText(summary);
+    setCopyFeedback(true);
+    setTimeout(() => setCopyFeedback(false), 2000);
+  };
 
   const getMarginColorClass = (margin: number) => {
     if (margin >= 70) return 'text-sky-600';
@@ -54,28 +79,16 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
         <h3 className="text-[9px] font-black text-stone-600 uppercase tracking-[0.25em]">
           CONFIGURACIÓN DE ESCANDALLO
         </h3>
+        <button 
+          onClick={copySummary}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+            copyFeedback ? 'bg-green-500 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+          }`}
+        >
+          {copyFeedback ? '¡Copiado!' : 'Copiar Resumen'}
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        </button>
       </div>
-
-      {isByUnit && (
-        <div className="bg-amber-50/30 p-4 rounded-[1.5rem] border border-amber-100/50 shadow-sm animate-in slide-in-from-top-2">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <label className="block text-[8px] font-black text-amber-800 uppercase tracking-widest mb-0.5">Peso de la pieza</label>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-black text-amber-900 leading-none tabular-nums">{formatWeight.toFixed(2)}</span>
-                <span className="text-[9px] font-bold text-amber-700 uppercase">kg</span>
-              </div>
-            </div>
-            <p className="text-[8px] text-amber-600/70 font-bold uppercase text-right leading-tight max-w-[100px]">Ajusta según recepción real</p>
-          </div>
-          <input 
-            type="range" min="0.1" max="10" step="0.1"
-            value={formatWeight} 
-            onChange={(e) => setFormatWeight(parseFloat(e.target.value))}
-            className={`${sliderBaseClass} accent-amber-500 bg-amber-100/50`}
-          />
-        </div>
-      )}
 
       <div className="bg-white p-5 rounded-[1.5rem] border border-stone-100 shadow-sm">
         <div className="flex justify-between items-center mb-4">
@@ -87,16 +100,16 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setPortionSize(prev => Math.max(0, prev - 10))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
+            <button onClick={() => setPortionSize(prev => Math.max(0, prev - 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M20 12H4"/></svg>
             </button>
-            <button onClick={() => setPortionSize(prev => Math.min(1000, prev + 10))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
+            <button onClick={() => setPortionSize(prev => Math.min(2000, prev + 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
             </button>
           </div>
         </div>
         <input 
-          type="range" min="0" max="1000" step="5"
+          type="range" min="0" max={Math.max(1000, Math.round(fixedFormatWeight * 1000 * 1.5))} step="5"
           value={portionSize} 
           onChange={(e) => setPortionSize(parseInt(e.target.value))}
           className={`${sliderBaseClass} accent-sky-600`}
@@ -152,7 +165,7 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
         
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-4">
-            <label className="text-[8px] font-black text-stone-500 uppercase tracking-[0.2em]">Multiplicador</label>
+            <label className="text-[8px] font-black text-stone-500 uppercase tracking-[0.2em]">Multiplicador de Negocio</label>
             <span className="text-[10px] font-black text-stone-700 bg-white px-2.5 py-1 rounded-lg tabular-nums border border-stone-200">x{markup.toFixed(1)}</span>
           </div>
           <input 
