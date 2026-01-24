@@ -5,6 +5,25 @@ import { Product } from '../types';
 interface Props { product: Product; }
 
 export const CostCalculator: React.FC<Props> = ({ product }) => {
+  // Función para extraer la media de un rango (ej: "12/14" -> 13) o un número simple
+  const extractAverageUnits = (prod: Product): number => {
+    // Buscamos en el nombre y en el formato para máxima precisión
+    const searchString = `${prod.name} ${prod.specs.format}`;
+    
+    // 1. Prioridad: Rango de calibre tipo "12/14", "12-14" o "12 a 14"
+    const rangeMatch = searchString.match(/(\d+)\s*[\/\-a]\s*(\d+)/i);
+    if (rangeMatch) {
+      return (parseInt(rangeMatch[1]) + parseInt(rangeMatch[2])) / 2;
+    }
+    
+    // 2. Formato con unidades explícitas "15 uds", "10 lomos", etc.
+    const singleMatch = searchString.match(/(\d+)\s*(uds|unidades|piezas|lomos|unid)/i);
+    if (singleMatch) return parseInt(singleMatch[1]);
+    
+    // 3. Fallback al campo numérico directo si existe
+    return prod.specs.unitsPerFormat || 0;
+  };
+
   const extractFormatWeight = (spec: string) => {
     const match = spec.match(/(\d+(?:[.,]\d+)?)\s*(g|kg)/i);
     if (match) {
@@ -24,37 +43,50 @@ export const CostCalculator: React.FC<Props> = ({ product }) => {
                    product.unit.toLowerCase().includes('caja') ||
                    product.unit.toLowerCase().includes('pack');
   
+  const avgUnits = extractAverageUnits(product);
   const fixedFormatWeight = extractFormatWeight(product.specs.format);
   
+  const [calcMode, setCalcMode] = useState<'weight' | 'units'>(avgUnits > 1 ? 'units' : 'weight');
   const [portionSize, setPortionSize] = useState<number>(150); 
+  const [portionUnits, setPortionUnits] = useState<number>(1);
   const [wastePercentage, setWastePercentage] = useState<number>(0); 
   const [markup, setMarkup] = useState<number>(3.5);
   const [extraCost, setExtraCost] = useState<number>(0);
   const [copyFeedback, setCopyFeedback] = useState(false);
 
   useEffect(() => {
-    if (isByUnit) {
-      // Clamping to 1000 as per user request for portion size limit
-      setPortionSize(Math.min(1000, Math.round(fixedFormatWeight * 1000)));
+    if (avgUnits > 1) {
+      setCalcMode('units');
+    } else {
+      setCalcMode('weight');
+      if (isByUnit) {
+        setPortionSize(Math.min(1000, Math.round(fixedFormatWeight * 1000)));
+      }
     }
-  }, [product, isByUnit, fixedFormatWeight]);
+  }, [product, avgUnits, isByUnit, fixedFormatWeight]);
 
   const pricePerKg = isByUnit ? (product.price / (fixedFormatWeight || 1)) : product.price;
   const costPerGramRaw = pricePerKg / 1000;
   const yieldFactor = 1 - (wastePercentage / 100);
   const costPerGramNet = costPerGramRaw / (yieldFactor || 1);
   
-  const mainIngredientCost = costPerGramNet * portionSize;
+  const costPerUnit = avgUnits > 0 ? (product.price / avgUnits) : 0;
+
+  const mainIngredientCost = calcMode === 'units' 
+    ? (costPerUnit * portionUnits) 
+    : (costPerGramNet * portionSize);
+
   const totalFoodCost = mainIngredientCost + extraCost;
   const suggestedPVP = totalFoodCost * markup;
   const suggestedPVPWithIVA = suggestedPVP * 1.10; 
   const marginPercentage = suggestedPVP > 0 ? ((suggestedPVP - totalFoodCost) / suggestedPVP) * 100 : 0;
 
   const copySummary = () => {
+    const racionStr = calcMode === 'units' ? `${portionUnits} unidades` : `${portionSize}g`;
     const summary = `ESCANDALLO: ${product.name}
 ---------------------------
-Ración: ${portionSize}g
-Merma: ${wastePercentage}%
+Ración: ${racionStr}
+Merma: ${calcMode === 'weight' ? wastePercentage + '%' : 'N/A (por unidad)'}
 Cargas extra: ${extraCost.toFixed(2)}€
 ---------------------------
 COSTE PLATO: ${totalFoodCost.toFixed(2)}€
@@ -91,42 +123,85 @@ PVP SUGERIDO (c/ IVA): ${suggestedPVPWithIVA.toFixed(2)}€`;
         </button>
       </div>
 
+      {avgUnits > 1 && (
+        <div className="flex bg-stone-100 p-1 rounded-xl gap-1">
+          <button 
+            onClick={() => setCalcMode('units')}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${calcMode === 'units' ? 'bg-white text-sky-600 shadow-sm' : 'text-stone-400'}`}
+          >
+            Por Unidades ({avgUnits} media)
+          </button>
+          <button 
+            onClick={() => setCalcMode('weight')}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${calcMode === 'weight' ? 'bg-white text-sky-600 shadow-sm' : 'text-stone-400'}`}
+          >
+            Por Peso (gramos)
+          </button>
+        </div>
+      )}
+
       <div className="bg-white p-5 rounded-[1.5rem] border border-stone-100 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <label className="block text-[8px] font-black text-stone-500 uppercase tracking-widest mb-0.5">Ración base</label>
+            <label className="block text-[8px] font-black text-stone-500 uppercase tracking-widest mb-0.5">
+              {calcMode === 'units' ? 'Unidades en plato' : 'Ración base'}
+            </label>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-stone-900 leading-none tabular-nums">{portionSize}</span>
-              <span className="text-[10px] font-bold text-stone-400 uppercase">gr</span>
+              <span className="text-2xl font-black text-stone-900 leading-none tabular-nums">
+                {calcMode === 'units' ? portionUnits : portionSize}
+              </span>
+              <span className="text-[10px] font-bold text-stone-400 uppercase">
+                {calcMode === 'units' ? 'uds' : 'gr'}
+              </span>
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setPortionSize(prev => Math.max(0, prev - 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
+            <button 
+              onClick={() => calcMode === 'units' ? setPortionUnits(p => Math.max(1, p - 1)) : setPortionSize(prev => Math.max(0, prev - 5))} 
+              className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm"
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M20 12H4"/></svg>
             </button>
-            <button onClick={() => setPortionSize(prev => Math.min(1000, prev + 5))} className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm">
+            <button 
+              onClick={() => calcMode === 'units' ? setPortionUnits(p => Math.min(avgUnits, p + 1)) : setPortionSize(prev => Math.min(1000, prev + 5))} 
+              className="w-10 h-10 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center text-stone-700 active:scale-90 transition-all shadow-sm"
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
             </button>
           </div>
         </div>
+        
         <input 
-          type="range" min="0" max="1000" step="5"
-          value={portionSize} 
-          onChange={(e) => setPortionSize(parseInt(e.target.value))}
+          type="range" 
+          min={calcMode === 'units' ? "1" : "0"} 
+          max={calcMode === 'units' ? avgUnits.toString() : "1000"} 
+          step={calcMode === 'units' ? "1" : "5"}
+          value={calcMode === 'units' ? portionUnits : portionSize} 
+          onChange={(e) => calcMode === 'units' ? setPortionUnits(parseInt(e.target.value)) : setPortionSize(parseInt(e.target.value))}
           className={`${sliderBaseClass} accent-sky-600`}
         />
         
-        <div className="mt-5 pt-4 border-t border-stone-50 flex items-center justify-between">
-          <div>
-            <span className="block text-[8px] font-black text-stone-600 uppercase tracking-widest">Merma: {wastePercentage}%</span>
+        {calcMode === 'weight' && (
+          <div className="mt-5 pt-4 border-t border-stone-50 flex items-center justify-between">
+            <div>
+              <span className="block text-[8px] font-black text-stone-600 uppercase tracking-widest">Merma: {wastePercentage}%</span>
+            </div>
+            <input 
+              type="range" min="0" max="60" step="1"
+              value={wastePercentage} 
+              onChange={(e) => setWastePercentage(parseInt(e.target.value))}
+              className="w-32 h-1 bg-stone-100 accent-red-400"
+            />
           </div>
-          <input 
-            type="range" min="0" max="60" step="1"
-            value={wastePercentage} 
-            onChange={(e) => setWastePercentage(parseInt(e.target.value))}
-            className="w-32 h-1 bg-stone-100 accent-red-400"
-          />
-        </div>
+        )}
+
+        {calcMode === 'units' && (
+          <div className="mt-4 pt-4 border-t border-stone-50">
+             <p className="text-[10px] text-stone-400 font-bold italic">
+               Coste unitario (media {avgUnits}): <span className="text-stone-700 font-black">{costPerUnit.toFixed(2)}€ / ud</span>
+             </p>
+          </div>
+        )}
       </div>
 
       <div className="bg-sky-50/40 p-5 rounded-[1.5rem] border border-sky-100 shadow-sm">

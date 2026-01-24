@@ -50,9 +50,17 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
 
   if (!product) return null;
 
-  const unitPrice = product.specs.unitsPerFormat > 0 
-    ? product.price / product.specs.unitsPerFormat 
-    : null;
+  const extractAverageUnits = (prod: Product): number => {
+    const searchString = `${prod.name} ${prod.specs.format}`;
+    const rangeMatch = searchString.match(/(\d+)\s*[\/\-a]\s*(\d+)/i);
+    if (rangeMatch) return (parseInt(rangeMatch[1]) + parseInt(rangeMatch[2])) / 2;
+    const singleMatch = searchString.match(/(\d+)\s*(uds|unidades|piezas|lomos|unid)/i);
+    if (singleMatch) return parseInt(singleMatch[1]);
+    return prod.specs.unitsPerFormat || 0;
+  };
+
+  const effectiveUnits = extractAverageUnits(product);
+  const unitPrice = effectiveUnits > 0 ? product.price / effectiveUnits : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -142,10 +150,10 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                       <p className="text-[8px] sm:text-[9px] text-stone-500 uppercase font-black tracking-widest mb-1 sm:mb-2.5">Formato</p>
                       <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{product.specs.format}</p>
                     </div>
-                    {product.specs.unitsPerFormat > 0 && (
+                    {effectiveUnits > 0 && (
                       <div className="bg-sky-50/50 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-sky-100 shadow-sm">
-                        <p className="text-[8px] sm:text-[9px] text-sky-600 uppercase font-black tracking-widest mb-1 sm:mb-2.5">Unidades / {product.unit}</p>
-                        <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{product.specs.unitsPerFormat} ud</p>
+                        <p className="text-[8px] sm:text-[9px] text-sky-600 uppercase font-black tracking-widest mb-1 sm:mb-2.5">Unid. Estimadas (Media)</p>
+                        <p className="text-[11px] sm:text-[13px] font-extrabold text-stone-900 uppercase leading-tight">{effectiveUnits} ud</p>
                       </div>
                     )}
                     <div className="bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-stone-100 shadow-sm col-span-2 sm:col-span-1">

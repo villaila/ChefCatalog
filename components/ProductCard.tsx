@@ -14,9 +14,17 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
 
-  const unitPrice = product.specs.unitsPerFormat > 0 
-    ? product.price / product.specs.unitsPerFormat 
-    : null;
+  const extractAverageUnits = (prod: Product): number => {
+    const searchString = `${prod.name} ${prod.specs.format}`;
+    const rangeMatch = searchString.match(/(\d+)\s*[\/\-a]\s*(\d+)/i);
+    if (rangeMatch) return (parseInt(rangeMatch[1]) + parseInt(rangeMatch[2])) / 2;
+    const singleMatch = searchString.match(/(\d+)\s*(uds|unidades|piezas|lomos|unid)/i);
+    if (singleMatch) return parseInt(singleMatch[1]);
+    return prod.specs.unitsPerFormat || 0;
+  };
+
+  const effectiveUnits = extractAverageUnits(product);
+  const unitPrice = effectiveUnits > 0 ? product.price / effectiveUnits : null;
 
   useEffect(() => {
     let isMounted = true;
