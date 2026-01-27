@@ -14,53 +14,61 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
 
-  const extractAverageUnits = (prod: Product): number => {
-    const searchString = `${prod.name} ${prod.specs.format}`;
-    const rangeMatch = searchString.match(/(\d+)\s*[\/\-a]\s*(\d+)/i);
-    if (rangeMatch) return (parseInt(rangeMatch[1]) + parseInt(rangeMatch[2])) / 2;
-    const singleMatch = searchString.match(/(\d+)\s*(uds|unidades|piezas|lomos|unid)/i);
-    if (singleMatch) return parseInt(singleMatch[1]);
-    return prod.specs.unitsPerFormat || 0;
+  const getFormatWeight = (fmt: string): number => {
+    const match = fmt.match(/(\d+(?:[.,]\d+)?)\s*(kg|gr|g|l|mls|ml)/i);
+    if (!match) return 1;
+    let val = parseFloat(match[1].replace(',', '.'));
+    const unit = match[2].toLowerCase();
+    if (unit === 'g' || unit === 'gr' || unit === 'ml' || unit === 'mls') return val / 1000;
+    return val;
   };
 
-  const effectiveUnits = extractAverageUnits(product);
-  const unitPrice = effectiveUnits > 0 ? product.price / effectiveUnits : null;
+  // NUEVA FUNCIÓN: Calcula la media si detecta un rango (12-14 -> 13)
+  const getNumericUnits = (val: string | number): number => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    
+    // Buscar rangos como "12-14" o "12 a 14"
+    const rangeMatch = val.match(/(\d+(?:[.,]\d+)?)\s*(?:-|a|to)\s*(\d+(?:[.,]\d+)?)/i);
+    if (rangeMatch) {
+      const start = parseFloat(rangeMatch[1].replace(',', '.'));
+      const end = parseFloat(rangeMatch[2].replace(',', '.'));
+      return (start + end) / 2;
+    }
+    
+    // Fallback: primer número encontrado
+    const match = val.match(/(\d+(?:[.,]\d+)?)/);
+    return match ? parseFloat(match[1].replace(',', '.')) : 0;
+  };
+
+  const unitsStr = product.specs.unitsPerFormat?.toString() || '';
+  const effectiveUnits = getNumericUnits(unitsStr);
+  
+  const isWeightPrice = product.unit.toLowerCase().includes('kg') || product.unit.toLowerCase().includes('l');
+  const formatWeight = getFormatWeight(product.specs.format);
+  
+  const pricePerFormat = isWeightPrice ? (product.price * formatWeight) : product.price;
+  const unitPrice = effectiveUnits > 0 ? (pricePerFormat / effectiveUnits) : null;
 
   useEffect(() => {
     let isMounted = true;
-    
     const checkImage = async () => {
       const isPlaceholder = !product.imageUrl || 
                            product.imageUrl.includes('images.unsplash.com/photo-1547592166-23ac45744acd') ||
                            product.imageUrl.length < 10;
 
       if (isPlaceholder && !isGenerating && !errorStatus) {
-        const staggerDelay = Math.random() * 2000;
-        await new Promise(resolve => setTimeout(resolve, staggerDelay));
-        
-        if (!isMounted) return;
         setIsGenerating(true);
-        
         try {
           const generated = await generateProductImage(product.name);
           if (isMounted) setDisplayImage(generated);
-        } catch (error: any) {
-          if (isMounted) {
-            if (error.message === "QUOTA_EXCEEDED") {
-              setErrorStatus("QUOTA");
-              setDisplayImage(`https://source.unsplash.com/featured/?${encodeURIComponent(product.name + ',food')}`);
-            } else {
-              setErrorStatus("ERROR");
-            }
-          }
+        } catch (error) {
+          if (isMounted) setDisplayImage(`https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop`);
         } finally {
           if (isMounted) setIsGenerating(false);
         }
-      } else if (!isPlaceholder) {
-        setDisplayImage(product.imageUrl);
       }
     };
-
     checkImage();
     return () => { isMounted = false; };
   }, [product.imageUrl, product.name]);
@@ -74,29 +82,20 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
         {isGenerating ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-stone-50 p-8 text-center">
             <div className="w-8 h-8 border-2 border-stone-200 border-t-sky-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-[8px] text-stone-400 uppercase font-black tracking-[0.2em] animate-pulse">Generando Visual...</p>
+            <p className="text-[8px] text-stone-400 uppercase font-black tracking-[0.2em]">Generando Visual...</p>
           </div>
         ) : (
           <img 
             src={displayImage} 
             alt={product.name} 
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
-            onError={() => setDisplayImage('https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=1000&auto=format&fit=crop')}
           />
         )}
         
         {showTags && product.tags.length > 0 && (
           <div className="absolute top-5 left-5 flex flex-col gap-2">
             {product.tags.map((tag, idx) => (
-              <span 
-                key={idx}
-                className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg backdrop-blur-md border border-white/20 text-white ${
-                  tag === 'NOVEDAD' ? 'bg-[#E31E24]' : 
-                  tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 
-                  tag === 'IDEA SEMANA' ? 'bg-[#52b788]' :
-                  'bg-stone-500'
-                }`}
-              >
+              <span key={idx} className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white ${tag === 'NOVEDAD' ? 'bg-[#E31E24]' : tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 'bg-[#52b788]'}`}>
                 {tag}
               </span>
             ))}
@@ -105,59 +104,24 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
 
         <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border border-white flex flex-col items-end">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-lg font-black text-stone-900 leading-none">
-              {product.price.toFixed(2)}
-              <span className="text-xs ml-0.5">€</span>
-            </span>
+            <span className="text-lg font-black text-stone-900 leading-none">{product.price.toFixed(2)}€</span>
             <span className="text-[10px] text-stone-400 font-bold uppercase">/ {product.unit}</span>
           </div>
-          {unitPrice && (
+          {unitPrice !== null && (
             <div className="bg-[#00AEEF] px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
-              <span className="text-sm font-black text-white leading-none">
-                {unitPrice.toFixed(2)}€
-              </span>
+              <span className="text-sm font-black text-white leading-none">{unitPrice.toFixed(2)}€</span>
               <span className="text-[8px] font-black text-sky-100 uppercase tracking-tighter">/ ud</span>
             </div>
           )}
         </div>
-
-        {errorStatus === "QUOTA" && (
-          <div className="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur px-2 py-1 rounded-lg">
-             <span className="text-[7px] text-white font-black uppercase">Modo Ahorro Cuota</span>
-          </div>
-        )}
       </div>
       
       <div className="p-7 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-3">
-          <span className="bg-stone-100 text-stone-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
-            {product.category}
-          </span>
-          {product.origin && (
-            <span className="text-[9px] text-[#00AEEF] font-black uppercase tracking-widest">
-              {product.origin}
-            </span>
-          )}
+          <span className="bg-stone-100 text-stone-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">{product.category}</span>
         </div>
-
-        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-[#00AEEF] transition-colors">
-          {product.name}
-        </h3>
-        
-        <p className="text-stone-500 text-sm leading-relaxed line-clamp-2 mb-6 font-medium italic">
-          "{product.description}"
-        </p>
-        
-        <div className="mt-auto flex flex-wrap gap-2">
-          {product.benefits.slice(0, 2).map((b, i) => (
-            <div key={i} className="flex items-center gap-1.5 bg-stone-50 px-3 py-1.5 rounded-xl border border-stone-100">
-              <div className="w-1 h-1 bg-[#00AEEF] rounded-full"></div>
-              <span className="text-[9px] font-black text-stone-600 uppercase tracking-tighter">
-                {b}
-              </span>
-            </div>
-          ))}
-        </div>
+        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-[#00AEEF] transition-colors">{product.name}</h3>
+        <p className="text-stone-500 text-sm leading-relaxed line-clamp-2 mb-6 font-medium italic">"{product.description}"</p>
       </div>
     </div>
   );

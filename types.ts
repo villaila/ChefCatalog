@@ -9,10 +9,10 @@ export interface Product {
   imageUrl: string;
   origin: string;
   benefits: string[];
-  tags: string[]; // Nueva propiedad para clasificación
+  tags: string[];
   specs: {
     format: string;
-    unitsPerFormat: number;
+    unitsPerFormat: string | number;
     storage: string;
   };
 }
