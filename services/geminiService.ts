@@ -6,24 +6,25 @@ export type CulinaryStyle = 'Tradicional' | 'Clásica' | 'Moderna' | 'Técnica';
 
 export const getChefInspiration = async (product: Product, style: CulinaryStyle = 'Moderna'): Promise<RecipeSuggestion> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = (process.env.API_KEY || '') as string;
+    const ai = new GoogleGenAI({ apiKey });
     
     const prompt = `Como Chef Ejecutivo de Pirineos Exdim, crea una propuesta culinaria de estilo "${style}" para el producto: "${product.name}". 
     
     Instrucciones de estilo:
-    - Tradicional: Sabores de siempre, guisos, recetas regionales, reconfortante.
-    - Clásica: Técnicas francesas/internacionales académicas, salsas madre, elegancia atemporal.
-    - Moderna: Vanguardia, contrastes de texturas, presentaciones minimalistas, ingredientes globales.
-    - Técnica: Enfoque extremo en procesos químicos/físicos (vacío, fermentos, temperaturas precisas), máxima optimización de merma.
+    - Tradicional: Sabores de siempre, guisos, recetas regionales.
+    - Clásica: Técnicas francesas/internacionales académicas.
+    - Moderna: Vanguardia, contrastes de texturas, presentaciones minimalistas.
+    - Técnica: Enfoque extremo en procesos, máxima optimización de merma.
 
-    Responde estrictamente en formato JSON con la siguiente estructura:
+    Responde estrictamente en formato JSON:
     {
       "title": "Nombre creativo del plato",
-      "description": "Breve concepto del plato (max 20 palabras)",
-      "ingredients": ["lista de ingredientes con cantidades"],
-      "steps": ["paso 1", "paso 2", ...],
-      "plating": "Descripción del emplatado",
-      "chefTips": "Consejo profesional para rentabilidad o sabor"
+      "description": "Breve concepto (max 20 palabras)",
+      "ingredients": ["lista"],
+      "steps": ["pasos"],
+      "plating": "Descripción",
+      "chefTips": "Consejo profesional"
     }`;
 
     const response = await ai.models.generateContent({
@@ -53,7 +54,7 @@ export const getChefInspiration = async (product: Product, style: CulinaryStyle 
       title: `${product.name} Sugerencia`,
       description: "Error de conexión con el servicio de IA.",
       ingredients: ["Revisa tu conexión"],
-      steps: ["El servicio Chef IA está temporalmente en mantenimiento."],
+      steps: ["Servicio temporalmente no disponible."],
       plating: "No disponible",
       chefTips: "Contacta con soporte."
     };
@@ -62,12 +63,13 @@ export const getChefInspiration = async (product: Product, style: CulinaryStyle 
 
 export const generateProductImage = async (productName: string): Promise<string> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = (process.env.API_KEY || '') as string;
+    const ai = new GoogleGenAI({ apiKey });
     
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: { 
-        parts: [{ text: `High-end gourmet food photography of ${productName}, professional culinary lighting, minimalist white background` }] 
+        parts: [{ text: `High-end gourmet food photography of ${productName}, minimalist background` }] 
       },
       config: { 
         imageConfig: { aspectRatio: "1:1" } 
@@ -82,9 +84,8 @@ export const generateProductImage = async (productName: string): Promise<string>
         }
       }
     }
-    throw new Error("No image data found");
+    throw new Error("No image data");
   } catch (error) {
-    console.error("Error generando imagen:", error);
     return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop`;
   }
 };

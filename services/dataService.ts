@@ -75,19 +75,18 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
         unit: col[4] || 'ud',
         description: col[5] || '',
         imageUrl: transformDriveUrl(col[6] || ''),
-        origin: col[7] || '', // Se elimina el default 'Nacional'
+        origin: col[7] || '', 
         benefits: col[8] ? col[8].split('|').map(b => b.trim()) : [],
         tags: tags,
         specs: {
           format: col[9] || 'Estándar',
-          unitsPerFormat: parseFloat(col[10]?.replace(',', '.') || '0') || 0,
+          unitsPerFormat: col[10] || '', // CAMBIO CLAVE: Mantener como string para soportar "12-14"
           storage: col[11] || 'Ambiente'
         }
       };
     });
 
-    const finalProducts = parsedProducts.filter(p => p.name.length > 0);
-    return finalProducts.length > 0 ? finalProducts : FALLBACK_DATA.map(p => ({ ...p, tags: [] }));
+    return parsedProducts.filter(p => p.name.length > 0);
     
   } catch (error) {
     console.error('Error cargando datos:', error);
