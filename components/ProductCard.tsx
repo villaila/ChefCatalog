@@ -99,10 +99,10 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
               return (
                 <span 
                   key={idx} 
-                  className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white shadow-sm 
+                  className={`px-4 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-white shadow-md 
                     ${tag === 'NOVEDAD' ? 'bg-[#E31E24]' : 
                       tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 
-                      isOferta ? 'bg-[#FF9F1C] animate-pulse' : 
+                      isOferta ? 'bg-[#FF9F1C] animate-pulse scale-110 origin-left' : 
                       'bg-[#52b788]'}`}
                 >
                   {tag}
