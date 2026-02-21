@@ -50,8 +50,8 @@ const App: React.FC = () => {
       try {
         const data = await fetchWeeklyCatalog();
         const sortedData = [...data].sort((a, b) => {
-          const isSpecialA = a.tags.includes('NOVEDAD') || a.tags.includes('RECOMENDACION');
-          const isSpecialB = b.tags.includes('NOVEDAD') || b.tags.includes('RECOMENDACION');
+          const isSpecialA = a.tags.includes('NOVEDAD') || a.tags.includes('RECOMENDACION') || a.tags.includes('OFERTA');
+          const isSpecialB = b.tags.includes('NOVEDAD') || b.tags.includes('RECOMENDACION') || b.tags.includes('OFERTA');
           if (isSpecialA === isSpecialB) return 0;
           return isSpecialA ? 1 : -1;
         });

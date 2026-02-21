@@ -94,23 +94,33 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
         
         {showTags && product.tags.length > 0 && (
           <div className="absolute top-5 left-5 flex flex-col gap-2">
-            {product.tags.map((tag, idx) => (
-              <span key={idx} className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white ${tag === 'NOVEDAD' ? 'bg-[#E31E24]' : tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 'bg-[#52b788]'}`}>
-                {tag}
-              </span>
-            ))}
+            {product.tags.map((tag, idx) => {
+              const isOferta = tag === 'OFERTA';
+              return (
+                <span 
+                  key={idx} 
+                  className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white shadow-sm 
+                    ${tag === 'NOVEDAD' ? 'bg-[#E31E24]' : 
+                      tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 
+                      isOferta ? 'bg-[#FF9F1C] animate-pulse' : 
+                      'bg-[#52b788]'}`}
+                >
+                  {tag}
+                </span>
+              );
+            })}
           </div>
         )}
 
-        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border border-white flex flex-col items-end">
+        <div className={`absolute top-5 right-5 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border flex flex-col items-end transition-colors duration-300 ${product.tags.includes('OFERTA') ? 'bg-orange-50/95 border-orange-200' : 'bg-white/95 border-white'}`}>
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-lg font-black text-stone-900 leading-none">{product.price.toFixed(2)}€</span>
-            <span className="text-[10px] text-stone-400 font-bold uppercase">/ {product.unit}</span>
+            <span className={`text-lg font-black leading-none ${product.tags.includes('OFERTA') ? 'text-orange-600' : 'text-stone-900'}`}>{product.price.toFixed(2)}€</span>
+            <span className={`text-[10px] font-bold uppercase ${product.tags.includes('OFERTA') ? 'text-orange-400' : 'text-stone-400'}`}>/ {product.unit}</span>
           </div>
           {unitPrice !== null && (
-            <div className="bg-[#00AEEF] px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
+            <div className={`${product.tags.includes('OFERTA') ? 'bg-orange-500' : 'bg-[#00AEEF]'} px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors duration-300`}>
               <span className="text-sm font-black text-white leading-none">{unitPrice.toFixed(2)}€</span>
-              <span className="text-[8px] font-black text-sky-100 uppercase tracking-tighter">/ ud</span>
+              <span className={`text-[8px] font-black uppercase tracking-tighter ${product.tags.includes('OFERTA') ? 'text-orange-100' : 'text-sky-100'}`}>/ ud</span>
             </div>
           )}
         </div>

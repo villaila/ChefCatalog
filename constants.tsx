@@ -13,7 +13,7 @@ export const WEEKLY_CATALOG: Product[] = [
     origin: 'Cantábrico, España',
     benefits: ['Apertura y servicio directo', 'Larga vida útil', 'Formato hostelería'],
     // Added missing 'tags' property
-    tags: [],
+    tags: ['OFERTA'],
     specs: {
       format: 'Lata 650g',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
