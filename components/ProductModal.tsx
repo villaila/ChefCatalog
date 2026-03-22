@@ -62,11 +62,23 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
           <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent sm:hidden"></div>
           <div className="absolute top-4 left-4 flex flex-col gap-1.5">
-            {product.tags.map((tag, idx) => (
-              <span key={idx} className={`px-3 py-1 rounded-full text-[7px] font-black uppercase tracking-widest text-white shadow-lg ${tag === 'NOVEDAD' ? 'bg-[#E31E24]' : tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 'bg-[#52b788]'}`}>
-                {tag}
-              </span>
-            ))}
+            {product.tags.map((tag, idx) => {
+              const isOferta = tag === 'OFERTA';
+              const isOro = tag === 'TOP CHEF';
+              return (
+                <span 
+                  key={idx} 
+                  className={`px-3 py-1 rounded-full text-[7px] font-black uppercase tracking-widest shadow-lg 
+                    ${tag === 'NOVEDAD' ? 'bg-[#E31E24] text-white' : 
+                      tag === 'RECOMENDACION' ? 'bg-[#00AEEF] text-white' : 
+                      isOferta ? 'bg-[#FF9F1C] text-white animate-pulse' : 
+                      isOro ? 'bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-stone-900 shadow-[0_0_15px_rgba(191,149,63,0.4)]' : 
+                      'bg-[#52b788] text-white'}`}
+                >
+                  {tag}
+                </span>
+              );
+            })}
           </div>
         </div>
 

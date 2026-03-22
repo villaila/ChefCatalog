@@ -50,6 +50,9 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
   const pricePerFormat = isWeightPrice ? (product.price * formatWeight) : product.price;
   const unitPrice = effectiveUnits > 0 ? (pricePerFormat / effectiveUnits) : null;
 
+  const isOroProduct = product.tags.includes('TOP CHEF');
+  const isOfertaProduct = product.tags.includes('OFERTA');
+
   useEffect(() => {
     let isMounted = true;
     const checkImage = async () => {
@@ -76,9 +79,13 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
   return (
     <div 
       onClick={() => onClick({ ...product, imageUrl: displayImage })}
-      className="group bg-white rounded-[2rem] overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 cursor-pointer border border-stone-50 flex flex-col h-full active:scale-[0.98]"
+      className={`group rounded-[2rem] overflow-hidden transition-all duration-500 cursor-pointer border flex flex-col h-full active:scale-[0.98] ${
+        isOroProduct 
+          ? 'bg-gradient-to-br from-[#FCF6BA]/40 via-[#FCF6BA]/10 to-[#BF953F]/15 border-[#BF953F]/50 shadow-[0_4px_20px_-4px_rgba(191,149,63,0.25)] hover:shadow-[0_20px_40px_-12px_rgba(191,149,63,0.4)]' 
+          : 'bg-white border-stone-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)]'
+      }`}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-stone-50">
+      <div className={`relative aspect-[4/3] overflow-hidden ${isOroProduct ? 'bg-[#BF953F]/5' : 'bg-stone-50'}`}>
         {isGenerating ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-stone-50 p-8 text-center">
             <div className="w-8 h-8 border-2 border-stone-200 border-t-sky-600 rounded-full animate-spin mb-4"></div>
@@ -96,14 +103,16 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
           <div className="absolute top-5 left-5 flex flex-col gap-2">
             {product.tags.map((tag, idx) => {
               const isOferta = tag === 'OFERTA';
+              const isOro = tag === 'TOP CHEF';
               return (
                 <span 
                   key={idx} 
-                  className={`px-4 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-white shadow-md 
-                    ${tag === 'NOVEDAD' ? 'bg-[#E31E24]' : 
-                      tag === 'RECOMENDACION' ? 'bg-[#00AEEF]' : 
-                      isOferta ? 'bg-[#FF9F1C] animate-pulse scale-110 origin-left' : 
-                      'bg-[#52b788]'}`}
+                  className={`px-4 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest shadow-md 
+                    ${tag === 'NOVEDAD' ? 'bg-[#E31E24] text-white' : 
+                      tag === 'RECOMENDACION' ? 'bg-[#00AEEF] text-white' : 
+                      isOferta ? 'bg-[#FF9F1C] text-white animate-pulse scale-110 origin-left' : 
+                      isOro ? 'bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-stone-900 shadow-[0_0_15px_rgba(191,149,63,0.4)]' : 
+                      'bg-[#52b788] text-white'}`}
                 >
                   {tag}
                 </span>
@@ -112,15 +121,15 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
           </div>
         )}
 
-        <div className={`absolute top-5 right-5 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border flex flex-col items-end transition-colors duration-300 ${product.tags.includes('OFERTA') ? 'bg-orange-50/95 border-orange-200' : 'bg-white/95 border-white'}`}>
+        <div className={`absolute top-5 right-5 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border flex flex-col items-end transition-colors duration-300 ${isOroProduct ? 'bg-stone-900/95 border-[#BF953F]/50' : isOfertaProduct ? 'bg-orange-50/95 border-orange-200' : 'bg-white/95 border-white'}`}>
           <div className="flex items-center gap-1 mb-1">
-            <span className={`text-lg font-black leading-none ${product.tags.includes('OFERTA') ? 'text-orange-600' : 'text-stone-900'}`}>{product.price.toFixed(2)}€</span>
-            <span className={`text-[10px] font-bold uppercase ${product.tags.includes('OFERTA') ? 'text-orange-400' : 'text-stone-400'}`}>/ {product.unit}</span>
+            <span className={`text-lg font-black leading-none ${isOroProduct ? 'text-[#FCF6BA]' : isOfertaProduct ? 'text-orange-600' : 'text-stone-900'}`}>{product.price.toFixed(2)}€</span>
+            <span className={`text-[10px] font-bold uppercase ${isOroProduct ? 'text-[#BF953F]' : isOfertaProduct ? 'text-orange-400' : 'text-stone-400'}`}>/ {product.unit}</span>
           </div>
           {unitPrice !== null && (
-            <div className={`${product.tags.includes('OFERTA') ? 'bg-orange-500' : 'bg-[#00AEEF]'} px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors duration-300`}>
-              <span className="text-sm font-black text-white leading-none">{unitPrice.toFixed(2)}€</span>
-              <span className={`text-[8px] font-black uppercase tracking-tighter ${product.tags.includes('OFERTA') ? 'text-orange-100' : 'text-sky-100'}`}>/ ud</span>
+            <div className={`${isOroProduct ? 'bg-gradient-to-r from-[#BF953F] to-[#B38728]' : isOfertaProduct ? 'bg-orange-500' : 'bg-[#00AEEF]'} px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors duration-300`}>
+              <span className={`text-sm font-black leading-none ${isOroProduct ? 'text-stone-900' : 'text-white'}`}>{unitPrice.toFixed(2)}€</span>
+              <span className={`text-[8px] font-black uppercase tracking-tighter ${isOroProduct ? 'text-stone-900/70' : isOfertaProduct ? 'text-orange-100' : 'text-sky-100'}`}>/ ud</span>
             </div>
           )}
         </div>
@@ -128,10 +137,10 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
       
       <div className="p-7 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-3">
-          <span className="bg-stone-100 text-stone-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">{product.category}</span>
+          <span className={`${isOroProduct ? 'bg-[#BF953F]/15 text-[#997328]' : 'bg-stone-100 text-stone-500'} text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg`}>{product.category}</span>
         </div>
-        <h3 className="font-serif text-3xl text-stone-900 mb-3 leading-tight group-hover:text-[#00AEEF] transition-colors">{product.name}</h3>
-        <p className="text-stone-500 text-sm leading-relaxed line-clamp-2 mb-6 font-medium italic">"{product.description}"</p>
+        <h3 className={`font-serif text-3xl mb-3 leading-tight transition-colors ${isOroProduct ? 'text-stone-900 group-hover:text-[#BF953F]' : 'text-stone-900 group-hover:text-[#00AEEF]'}`}>{product.name}</h3>
+        <p className={`${isOroProduct ? 'text-stone-600' : 'text-stone-500'} text-sm leading-relaxed line-clamp-2 mb-6 font-medium italic`}>"{product.description}"</p>
       </div>
     </div>
   );

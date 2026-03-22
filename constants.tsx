@@ -70,7 +70,7 @@ export const WEEKLY_CATALOG: Product[] = [
     origin: 'Sarrión, Teruel',
     benefits: ['Elevación de ticket medio', 'Aroma de alta intensidad', 'Icono de temporada'],
     // Added missing 'tags' property
-    tags: [],
+    tags: ['TOP CHEF'],
     specs: {
       format: 'Piezas +30g',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface

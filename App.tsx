@@ -49,13 +49,7 @@ const App: React.FC = () => {
       setLoading(true);
       try {
         const data = await fetchWeeklyCatalog();
-        const sortedData = [...data].sort((a, b) => {
-          const isSpecialA = a.tags.includes('NOVEDAD') || a.tags.includes('RECOMENDACION') || a.tags.includes('OFERTA');
-          const isSpecialB = b.tags.includes('NOVEDAD') || b.tags.includes('RECOMENDACION') || b.tags.includes('OFERTA');
-          if (isSpecialA === isSpecialB) return 0;
-          return isSpecialA ? -1 : 1;
-        });
-        setProducts(sortedData);
+        setProducts(data);
       } catch (error) {
         console.error("Error al cargar el catálogo:", error);
       } finally {
