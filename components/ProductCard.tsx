@@ -51,6 +51,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
   const unitPrice = effectiveUnits > 0 ? (pricePerFormat / effectiveUnits) : null;
 
   const isOroProduct = product.tags.includes('TOP CHEF');
+  const isIdeaProduct = product.tags.includes('IDEA SEMANA');
   const isOfertaProduct = product.tags.includes('OFERTA');
 
   useEffect(() => {
@@ -82,10 +83,12 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
       className={`group rounded-[2rem] overflow-hidden transition-all duration-500 cursor-pointer border flex flex-col h-full active:scale-[0.98] ${
         isOroProduct 
           ? 'bg-gradient-to-br from-[#FCF6BA]/40 via-[#FCF6BA]/10 to-[#BF953F]/15 border-[#BF953F]/50 shadow-[0_4px_20px_-4px_rgba(191,149,63,0.25)] hover:shadow-[0_20px_40px_-12px_rgba(191,149,63,0.4)]' 
+          : isIdeaProduct
+          ? 'bg-gradient-to-br from-[#d8f3dc]/50 via-[#d8f3dc]/20 to-[#52b788]/15 border-[#52b788]/40 shadow-[0_4px_20px_-4px_rgba(82,183,136,0.25)] hover:shadow-[0_20px_40px_-12px_rgba(82,183,136,0.4)]'
           : 'bg-white border-stone-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)]'
       }`}
     >
-      <div className={`relative aspect-[4/3] overflow-hidden ${isOroProduct ? 'bg-[#BF953F]/5' : 'bg-stone-50'}`}>
+      <div className={`relative aspect-[4/3] overflow-hidden ${isOroProduct ? 'bg-[#BF953F]/5' : isIdeaProduct ? 'bg-[#52b788]/10' : 'bg-stone-50'}`}>
         {isGenerating ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-stone-50 p-8 text-center">
             <div className="w-8 h-8 border-2 border-stone-200 border-t-sky-600 rounded-full animate-spin mb-4"></div>
@@ -104,6 +107,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
             {product.tags.map((tag, idx) => {
               const isOferta = tag === 'OFERTA';
               const isOro = tag === 'TOP CHEF';
+              const isIdea = tag === 'IDEA SEMANA';
               return (
                 <span 
                   key={idx} 
@@ -112,6 +116,7 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
                       tag === 'RECOMENDACION' ? 'bg-[#00AEEF] text-white' : 
                       isOferta ? 'bg-[#FF9F1C] text-white animate-pulse scale-110 origin-left' : 
                       isOro ? 'bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-stone-900 shadow-[0_0_15px_rgba(191,149,63,0.4)]' : 
+                      isIdea ? 'bg-gradient-to-r from-[#52b788] via-[#74c69d] to-[#40916c] text-white shadow-[0_0_15px_rgba(82,183,136,0.4)]' : 
                       'bg-[#52b788] text-white'}`}
                 >
                   {tag}
@@ -121,15 +126,15 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
           </div>
         )}
 
-        <div className={`absolute top-5 right-5 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border flex flex-col items-end transition-colors duration-300 ${isOroProduct ? 'bg-stone-900/95 border-[#BF953F]/50' : isOfertaProduct ? 'bg-orange-50/95 border-orange-200' : 'bg-white/95 border-white'}`}>
+        <div className={`absolute top-5 right-5 backdrop-blur px-4 py-3 rounded-2xl shadow-xl border flex flex-col items-end transition-colors duration-300 ${isOroProduct ? 'bg-stone-900/95 border-[#BF953F]/50' : isIdeaProduct ? 'bg-[#1b4332]/95 border-[#52b788]/50' : isOfertaProduct ? 'bg-orange-50/95 border-orange-200' : 'bg-white/95 border-white'}`}>
           <div className="flex items-center gap-1 mb-1">
-            <span className={`text-lg font-black leading-none ${isOroProduct ? 'text-[#FCF6BA]' : isOfertaProduct ? 'text-orange-600' : 'text-stone-900'}`}>{product.price.toFixed(2)}€</span>
-            <span className={`text-[10px] font-bold uppercase ${isOroProduct ? 'text-[#BF953F]' : isOfertaProduct ? 'text-orange-400' : 'text-stone-400'}`}>/ {product.unit}</span>
+            <span className={`text-lg font-black leading-none ${isOroProduct ? 'text-[#FCF6BA]' : isIdeaProduct ? 'text-[#d8f3dc]' : isOfertaProduct ? 'text-orange-600' : 'text-stone-900'}`}>{product.price.toFixed(2)}€</span>
+            <span className={`text-[10px] font-bold uppercase ${isOroProduct ? 'text-[#BF953F]' : isIdeaProduct ? 'text-[#74c69d]' : isOfertaProduct ? 'text-orange-400' : 'text-stone-400'}`}>/ {product.unit}</span>
           </div>
           {unitPrice !== null && (
-            <div className={`${isOroProduct ? 'bg-gradient-to-r from-[#BF953F] to-[#B38728]' : isOfertaProduct ? 'bg-orange-500' : 'bg-[#00AEEF]'} px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors duration-300`}>
+            <div className={`${isOroProduct ? 'bg-gradient-to-r from-[#BF953F] to-[#B38728]' : isIdeaProduct ? 'bg-gradient-to-r from-[#52b788] to-[#40916c]' : isOfertaProduct ? 'bg-orange-500' : 'bg-[#00AEEF]'} px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors duration-300`}>
               <span className={`text-sm font-black leading-none ${isOroProduct ? 'text-stone-900' : 'text-white'}`}>{unitPrice.toFixed(2)}€</span>
-              <span className={`text-[8px] font-black uppercase tracking-tighter ${isOroProduct ? 'text-stone-900/70' : isOfertaProduct ? 'text-orange-100' : 'text-sky-100'}`}>/ ud</span>
+              <span className={`text-[8px] font-black uppercase tracking-tighter ${isOroProduct ? 'text-stone-900/70' : isIdeaProduct ? 'text-green-100' : isOfertaProduct ? 'text-orange-100' : 'text-sky-100'}`}>/ ud</span>
             </div>
           )}
         </div>
@@ -137,10 +142,10 @@ export const ProductCard: React.FC<Props> = ({ product, onClick, showTags = fals
       
       <div className="p-7 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-3">
-          <span className={`${isOroProduct ? 'bg-[#BF953F]/15 text-[#997328]' : 'bg-stone-100 text-stone-500'} text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg`}>{product.category}</span>
+          <span className={`${isOroProduct ? 'bg-[#BF953F]/15 text-[#997328]' : isIdeaProduct ? 'bg-[#52b788]/20 text-[#1b4332]' : 'bg-stone-100 text-stone-500'} text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg`}>{product.category}</span>
         </div>
-        <h3 className={`font-serif text-3xl mb-3 leading-tight transition-colors ${isOroProduct ? 'text-stone-900 group-hover:text-[#BF953F]' : 'text-stone-900 group-hover:text-[#00AEEF]'}`}>{product.name}</h3>
-        <p className={`${isOroProduct ? 'text-stone-600' : 'text-stone-500'} text-sm leading-relaxed line-clamp-2 mb-6 font-medium italic`}>"{product.description}"</p>
+        <h3 className={`font-serif text-3xl mb-3 leading-tight transition-colors ${isOroProduct ? 'text-stone-900 group-hover:text-[#BF953F]' : isIdeaProduct ? 'text-stone-900 group-hover:text-[#2d6a4f]' : 'text-stone-900 group-hover:text-[#00AEEF]'}`}>{product.name}</h3>
+        <p className={`${isOroProduct || isIdeaProduct ? 'text-stone-600' : 'text-stone-500'} text-sm leading-relaxed line-clamp-2 mb-6 font-medium italic`}>"{product.description}"</p>
       </div>
     </div>
   );

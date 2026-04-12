@@ -51,7 +51,7 @@ export const WEEKLY_CATALOG: Product[] = [
     origin: 'Guijuelo, Salamanca',
     benefits: ['Alta demanda en carta', 'Pérdida mínima por cocción', 'Exclusividad estacional'],
     // Added missing 'tags' property
-    tags: [],
+    tags: ['IDEA SEMANA'],
     specs: {
       format: 'Piezas de 600g aprox.',
       // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
