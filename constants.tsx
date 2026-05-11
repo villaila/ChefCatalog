@@ -23,21 +23,19 @@ export const WEEKLY_CATALOG: Product[] = [
   },
   {
     id: '1',
-    name: 'Atún Rojo Balfegó (Lomo)',
-    category: 'Pescados',
-    price: 48.90,
+    name: 'Magret de Pato Extra',
+    category: 'Carnes',
+    price: 18.90,
     unit: 'kg',
-    description: 'Infiltración de grasa excepcional. Textura sedosa que se funde en boca con un retrogusto marino limpio y persistente.',
-    imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1000&auto=format&fit=crop',
-    origin: "L'Ametlla de Mar, Tarragona",
-    benefits: ['Rendimiento 100%', 'Certificado de sostenibilidad', 'Ike Jime original'],
-    // Added missing 'tags' property
-    tags: [],
+    description: 'Corte magro y jugoso procedente de las pechugas de patos cebados. Sabor intenso ideal para marcar a la plancha.',
+    imageUrl: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?q=80&w=1000&auto=format&fit=crop',
+    origin: "Francia",
+    benefits: ['Versatilidad en cocina', 'Rendimiento excelente', 'Proteína premium'],
+    tags: ['ESPECIAL PATO'],
     specs: {
-      format: 'Lomo limpio (2-3kg)',
-      // Fix: 'shelfLife' replaced with 'unitsPerFormat' to match types.ts interface
+      format: 'Planchas 400g',
       unitsPerFormat: 1,
-      storage: '0°C a 2°C'
+      storage: '0°C a 4°C'
     }
   },
   {

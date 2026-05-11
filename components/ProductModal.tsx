@@ -66,6 +66,7 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
               const isOferta = tag === 'OFERTA';
               const isOro = tag === 'TOP CHEF';
               const isIdea = tag === 'IDEA SEMANA';
+              const isEspecial = tag.startsWith('ESPECIAL');
               return (
                 <span 
                   key={idx} 
@@ -75,6 +76,7 @@ export const ProductModal: React.FC<Props> = ({ product, onClose, onAddToCart })
                       isOferta ? 'bg-[#FF9F1C] text-white animate-pulse' : 
                       isOro ? 'bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-stone-900 shadow-[0_0_15px_rgba(191,149,63,0.4)]' : 
                       isIdea ? 'bg-gradient-to-r from-[#52b788] via-[#74c69d] to-[#40916c] text-white shadow-[0_0_15px_rgba(82,183,136,0.4)]' : 
+                      isEspecial ? 'bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 
                       'bg-[#52b788] text-white'}`}
                 >
                   {tag}
