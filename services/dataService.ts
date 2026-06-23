@@ -20,20 +20,51 @@ const transformDriveUrl = (url: string): string => {
   return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : url;
 };
 
-const parseCSVLine = (text: string, delimiter: string = ','): string[] => {
-  const result: string[] = [];
-  let current = '';
+const parseCSV = (text: string): string[][] => {
+  const firstLineEnd = text.indexOf('\n');
+  const firstLine = firstLineEnd === -1 ? text : text.slice(0, firstLineEnd);
+  const delimiter = firstLine.includes(';') ? ';' : ',';
+
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentVal = '';
   let inQuotes = false;
+
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    if (char === '"') inQuotes = !inQuotes;
-    else if (char === delimiter && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else current += char;
+    const nextChar = text[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        currentVal += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === delimiter && !inQuotes) {
+      currentRow.push(currentVal.trim());
+      currentVal = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && nextChar === '\n') {
+        i++;
+      }
+      currentRow.push(currentVal.trim());
+      if (currentRow.some(val => val !== '')) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentVal = '';
+    } else {
+      currentVal += char;
+    }
   }
-  result.push(current.trim());
-  return result.map(val => val.replace(/^"|"$/g, '').replace(/""/g, '"'));
+
+  currentRow.push(currentVal.trim());
+  if (currentRow.some(val => val !== '')) {
+    rows.push(currentRow);
+  }
+
+  return rows;
 };
 
 export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): Promise<Product[]> => {
@@ -46,16 +77,12 @@ export const fetchWeeklyCatalog = async (sheetUrl: string = DEFAULT_SHEET_URL): 
     if (!response.ok) throw new Error('Error de conexión con Google Sheets');
     
     const csvText = await response.text();
-    const rows = csvText.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
+    const rows = parseCSV(csvText);
     
     if (rows.length <= 1) return FALLBACK_DATA.map(p => ({ ...p, tags: [] }));
 
-    const headerRow = rows[0];
-    const delimiter = headerRow.includes(';') ? ';' : ',';
-
     const dataRows = rows.slice(1);
-    const parsedProducts: Product[] = dataRows.map((row, index) => {
-      const col = parseCSVLine(row, delimiter);
+    const parsedProducts: Product[] = dataRows.map((col, index) => {
       
       const rawTags = col[12] || '';
       const tags = rawTags
